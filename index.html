@@ -1,0 +1,2236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>Grilla de Adiestramiento</title>
+
+<!-- ===== App instalable (PWA) ===== -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2F5233">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Adiestramiento">
+<meta name="description" content="Registro de adiestramiento canino: conductas, series, cronograma y datos del perro.">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --campo:#2F5233;
+    --campo-osc:#223D26;
+    --premio:#E8A33D;
+    --premio-suave:#F6E3C2;
+    --fondo:#EEF1EA;
+    --tarjeta:#FFFFFF;
+    --tinta:#1E2420;
+    --tinta-suave:#5C665C;
+    --linea:#D8DED3;
+    --peligro:#B23A3A;
+    --peligro-f:#F3E5E5;
+    --exito:#3E7B4F;
+    --insumo:#FAFBF8;
+    --pista:#E3E8DF;
+    --panel:#F6F8F3;
+    --form-f:#FFFDF6;
+    --activo-f:#FFFDF8;
+    --ph:#A9B2A6;
+    --head-tx:#F4F7F2;
+    --head-sub:#C9D4C6;
+    --head-save:#9FB39C;
+    --radio:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:'Public Sans',system-ui,sans-serif;
+    background:var(--fondo);
+    color:var(--tinta);
+    padding-bottom:96px;
+  }
+  header{
+    background:var(--campo);
+    color:var(--head-tx);
+    padding:20px 20px 0;
+    border-radius:0 0 24px 24px;
+    position:relative;
+  }
+  .eyebrow{
+    font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--premio);font-weight:700;margin-bottom:6px;
+    padding-right:44px;
+  }
+  h1{
+    font-family:'Bricolage Grotesque',sans-serif;
+    font-size:25px;font-weight:800;line-height:1.15;
+    padding-right:44px;
+  }
+  .resumen{margin-top:8px;font-size:13px;color:var(--head-sub)}
+  .estado-guardado{margin-top:4px;font-size:12px;color:var(--head-save);min-height:16px}
+  .btn-volver{
+    border:none;background:rgba(255,255,255,.14);color:var(--head-tx);
+    border-radius:999px;padding:8px 16px;font-size:14px;font-weight:600;
+    font-family:inherit;cursor:pointer;margin-bottom:12px;
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .btn-volver:active{background:rgba(255,255,255,.25)}
+
+  .btn-config{
+    position:absolute;top:16px;right:14px;
+    width:40px;height:40px;border-radius:12px;border:none;
+    background:rgba(255,255,255,.14);color:var(--head-tx);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .btn-config:active{background:rgba(255,255,255,.28)}
+  .btn-config svg{width:22px;height:22px}
+
+  .sel-perro{
+    margin-top:10px;width:100%;
+    border:1.5px solid rgba(255,255,255,.3);border-radius:12px;
+    background:rgba(255,255,255,.12);color:var(--head-tx);
+    padding:11px 12px;font-family:inherit;font-size:15px;font-weight:600;
+  }
+  .sel-perro:focus{outline:none;border-color:var(--premio)}
+  .sel-perro option{color:#1E2420;background:#fff}
+
+  .pestanas{display:flex;gap:6px;margin-top:14px}
+  .pestana{
+    flex:1;border:none;font-family:inherit;font-size:13.5px;font-weight:700;
+    padding:12px 4px;cursor:pointer;
+    background:rgba(255,255,255,.10);color:var(--head-sub);
+    border-radius:12px 12px 0 0;
+  }
+  .pestana.activa{background:var(--fondo);color:var(--campo)}
+  header.sin-pestanas{padding-bottom:24px}
+
+  /* ---- Planilla veterinaria ---- */
+  .fila-doble{display:flex;gap:10px}
+  .fila-doble > div{flex:1;min-width:0}
+  .estado-vac{font-size:12.5px;font-weight:600;margin-top:-4px;margin-bottom:10px;min-height:16px}
+  .estado-vac.vencida{color:var(--peligro)}
+  .estado-vac.proxima{color:var(--premio)}
+  .estado-vac.ok{color:var(--exito)}
+  .nota-vet{
+    font-size:13px;color:var(--tinta-suave);background:var(--panel);
+    border-radius:12px;padding:12px;line-height:1.45;
+  }
+
+  main{padding:16px 14px 0;max-width:560px;margin:0 auto}
+
+  .tarjeta-lista{
+    background:var(--tarjeta);
+    border:1px solid var(--linea);
+    border-radius:var(--radio);
+    padding:14px;
+    margin-bottom:12px;
+    box-shadow:0 2px 6px rgba(30,36,32,.08);
+    cursor:pointer;
+    display:flex;align-items:center;gap:12px;
+  }
+  .tarjeta-lista:active{border-color:var(--premio);background:var(--activo-f)}
+  .info-lista{flex:1;min-width:0}
+  .nombre-lista{
+    font-family:'Bricolage Grotesque',sans-serif;
+    font-size:18px;font-weight:700;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .nombre-lista.sin-nombre{color:var(--ph)}
+  .desc-lista{
+    font-size:12.5px;color:var(--tinta-suave);margin-top:3px;line-height:1.4;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+  .huellas-mini{display:flex;gap:3px;margin-top:6px}
+  .huellas-mini svg{width:18px;height:18px}
+  .huellas-mini .relleno{fill:var(--pista)}
+  .huellas-mini .activa .relleno{fill:var(--premio)}
+  .stats-lista{margin-top:6px;font-size:12.5px;color:var(--tinta-suave)}
+  .stats-lista b{color:var(--exito)}
+  .flecha{color:var(--ph);font-size:20px;flex-shrink:0}
+  .orden-col{display:flex;flex-direction:column;gap:4px;flex-shrink:0}
+  .btn-orden{
+    width:38px;height:38px;border-radius:10px;border:1.5px solid var(--linea);
+    background:var(--insumo);color:var(--campo);font-size:16px;font-weight:700;
+    cursor:pointer;line-height:1;
+  }
+  .btn-orden:active:not(:disabled){background:var(--premio-suave);border-color:var(--premio)}
+  .btn-orden:disabled{opacity:.25;cursor:default}
+
+  .tarjeta{
+    background:var(--tarjeta);
+    border:1px solid var(--linea);
+    border-radius:var(--radio);
+    padding:16px 14px 14px;
+    margin-bottom:14px;
+    box-shadow:0 2px 6px rgba(30,36,32,.08);
+  }
+  .fila-titulo{display:flex;align-items:center;gap:8px}
+  .nombre-truco{
+    flex:1;border:none;background:transparent;
+    font-family:'Bricolage Grotesque',sans-serif;
+    font-size:20px;font-weight:700;color:var(--tinta);
+    padding:4px 2px;border-bottom:2px dashed transparent;min-width:0;
+  }
+  .nombre-truco:focus{outline:none;border-bottom-color:var(--premio)}
+  .nombre-truco::placeholder{color:var(--ph);font-weight:600}
+  .btn-borrar{
+    border:none;background:transparent;color:var(--tinta-suave);
+    font-size:20px;line-height:1;padding:8px;border-radius:10px;cursor:pointer;flex-shrink:0;
+  }
+  .btn-borrar:active{background:var(--peligro-f);color:var(--peligro)}
+
+  .bloque{margin-top:14px}
+  .etiqueta{
+    font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    font-weight:700;color:var(--tinta-suave);margin-bottom:6px;display:block;
+  }
+  .huellas{display:flex;gap:6px;align-items:center}
+  .huella{border:none;background:transparent;padding:4px;cursor:pointer;border-radius:8px}
+  .huella svg{width:34px;height:34px;display:block}
+  .huella .relleno{fill:var(--pista);transition:fill .15s}
+  .huella.activa .relleno{fill:var(--premio)}
+  .huella:active{transform:scale(1.12)}
+  .texto-estadio{margin-left:6px;font-size:13px;font-weight:600;color:var(--tinta-suave)}
+
+  .acumulado{display:flex;gap:8px;margin-top:6px}
+  .dato-acum{
+    flex:1;background:var(--insumo);border:1.5px solid var(--linea);
+    border-radius:12px;padding:10px 6px;text-align:center;
+  }
+  .dato-acum .valor{
+    font-family:'Bricolage Grotesque',sans-serif;
+    font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;
+  }
+  .dato-acum .valor.verde{color:var(--exito)}
+  .dato-acum .desc{font-size:11px;color:var(--tinta-suave);margin-top:2px;font-weight:600}
+  .barra-exito{margin-top:10px;height:10px;border-radius:999px;background:var(--pista);overflow:hidden}
+  .barra-exito > div{height:100%;background:var(--exito);border-radius:999px;transition:width .25s}
+
+  .form-serie{background:var(--form-f);border:1.5px dashed var(--premio)}
+  .sub-etiqueta{font-size:12.5px;font-weight:600;color:var(--tinta-suave);margin-bottom:4px;display:block}
+  .fila-reps{display:flex;align-items:center;gap:10px}
+  .btn-paso{
+    width:44px;height:44px;border-radius:12px;border:1.5px solid var(--linea);
+    background:var(--insumo);font-size:22px;font-weight:700;color:var(--campo);
+    cursor:pointer;flex-shrink:0;
+  }
+  .btn-paso:active:not(:disabled){background:var(--premio-suave);border-color:var(--premio)}
+  .btn-paso:disabled{opacity:.35;cursor:default}
+  .num-reps{
+    width:72px;text-align:center;font-size:20px;font-weight:700;
+    border:none;background:transparent;color:var(--tinta);
+    font-variant-numeric:tabular-nums;
+  }
+  .num-reps:focus{outline:2px solid var(--premio);border-radius:8px}
+  .aviso-error{margin-top:6px;font-size:12.5px;color:var(--peligro);min-height:16px}
+  .grupo-reps{margin-bottom:10px}
+
+  .obs{
+    width:100%;border:1.5px solid var(--linea);border-radius:12px;
+    background:var(--insumo);padding:10px 12px;font-family:inherit;font-size:14px;
+    color:var(--tinta);resize:none;min-height:56px;line-height:1.45;
+  }
+  .obs:focus{outline:none;border-color:var(--premio)}
+  .obs::placeholder{color:var(--ph)}
+
+  .btn-guardar-serie{
+    width:100%;margin-top:12px;background:var(--campo);color:#fff;border:none;
+    border-radius:12px;padding:14px;font-size:15px;font-weight:700;font-family:inherit;
+    cursor:pointer;
+  }
+  .btn-guardar-serie:active{background:var(--campo-osc)}
+  .btn-guardar-serie:disabled{opacity:.4;cursor:default}
+
+  .titulo-historial{
+    font-family:'Bricolage Grotesque',sans-serif;font-size:17px;font-weight:700;
+    margin:18px 2px 10px;
+  }
+  .serie{
+    background:var(--tarjeta);border:1px solid var(--linea);border-radius:14px;
+    padding:12px 14px;margin-bottom:10px;
+  }
+  .serie-cab{display:flex;align-items:baseline;gap:8px}
+  .serie-num{
+    font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:15px;
+    color:var(--campo);
+  }
+  .serie-fecha{font-size:12px;color:var(--tinta-suave);flex:1}
+  .btn-borrar-serie{
+    border:none;background:transparent;color:var(--tinta-suave);font-size:16px;
+    padding:4px 8px;border-radius:8px;cursor:pointer;
+  }
+  .btn-borrar-serie:active{background:var(--peligro-f);color:var(--peligro)}
+  .serie-datos{margin-top:6px;font-size:14px}
+  .serie-datos b{color:var(--exito)}
+  .serie-estadio{margin-top:4px;font-size:12.5px;color:var(--tinta-suave)}
+  .serie-estadio b{color:var(--premio);font-weight:700}
+  .serie-barra{margin-top:6px;height:7px;border-radius:999px;background:var(--pista);overflow:hidden}
+  .serie-barra > div{height:100%;background:var(--exito);border-radius:999px}
+  .serie-obs{margin-top:8px;font-size:13.5px;color:var(--tinta-suave);line-height:1.45;white-space:pre-wrap}
+  .serie-obs.vacia{font-style:italic;color:var(--ph)}
+  .serie-refuerzo{margin-top:6px;font-size:12.5px;color:var(--tinta-suave)}
+  .serie-refuerzo b{color:var(--campo);font-weight:700}
+  body.tema-oscuro .serie-refuerzo b{color:var(--exito)}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+  .chip{
+    display:inline-flex;align-items:center;
+    border:1.5px solid var(--linea);border-radius:999px;
+    background:var(--insumo);overflow:hidden;max-width:100%;
+  }
+  .chip.sel{border-color:var(--premio);background:var(--premio-suave)}
+  .chip-txt{
+    border:none;background:transparent;font-family:inherit;font-size:13px;
+    font-weight:600;color:var(--tinta);padding:8px 4px 8px 12px;cursor:pointer;
+    max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .chip-x{
+    border:none;background:transparent;color:var(--ph);font-size:12px;
+    padding:8px 10px 8px 6px;cursor:pointer;font-family:inherit;
+  }
+  .chip-x.confirmando{border-radius:0}
+  .sin-series{
+    text-align:center;font-size:13.5px;color:var(--tinta-suave);
+    padding:14px;background:var(--panel);border-radius:12px;
+  }
+  .btn-eliminar-truco{
+    width:100%;margin-top:18px;background:transparent;color:var(--peligro);
+    border:1.5px solid var(--peligro);border-radius:12px;padding:13px;
+    font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;
+  }
+  .btn-eliminar-truco:active{background:var(--peligro-f)}
+  .confirmando{
+    background:var(--peligro) !important;
+    color:#fff !important;
+    border-color:var(--peligro) !important;
+    font-size:13px !important;
+    font-weight:700;
+  }
+
+  .selector, .input-hora, .input-texto{
+    width:100%;border:1.5px solid var(--linea);border-radius:12px;
+    background:var(--insumo);padding:12px;font-family:inherit;font-size:15px;
+    color:var(--tinta);margin-bottom:10px;
+  }
+  .selector:focus, .input-hora:focus, .input-texto:focus{outline:none;border-color:var(--premio)}
+  .input-texto::placeholder{color:var(--ph)}
+  .dia-card{
+    background:var(--tarjeta);border:1px solid var(--linea);border-radius:var(--radio);
+    padding:12px 14px;margin-bottom:12px;
+  }
+  .dia-nombre{
+    font-family:'Bricolage Grotesque',sans-serif;font-size:16px;font-weight:800;
+    color:var(--campo);
+  }
+  body.tema-oscuro .dia-nombre{color:var(--premio)}
+  .dia-vacio{font-size:13px;color:var(--ph);font-style:italic;margin-top:6px}
+  .item-crono{
+    display:flex;align-items:flex-start;gap:10px;
+    padding:10px 0;border-top:1px solid var(--linea);margin-top:8px;
+  }
+  .item-crono:first-of-type{border-top:none}
+  .hora-crono{
+    font-variant-numeric:tabular-nums;font-weight:700;font-size:14px;
+    color:var(--premio);min-width:52px;padding-top:1px;
+  }
+  .hora-crono.sin-hora{color:var(--ph);font-weight:600;font-size:12.5px}
+  .cuerpo-crono{flex:1;min-width:0}
+  .truco-crono{font-weight:700;font-size:15px}
+  .truco-crono.eliminado{color:var(--peligro);font-weight:600;font-style:italic}
+  .nota-crono{font-size:13px;color:var(--tinta-suave);margin-top:2px;line-height:1.4;white-space:pre-wrap}
+
+  .perro-card{
+    background:var(--tarjeta);border:1px solid var(--linea);border-radius:var(--radio);
+    padding:14px;margin-bottom:12px;
+  }
+  .perro-card.activo{border:2px solid var(--premio);background:var(--form-f)}
+  .perro-fila{display:flex;align-items:center;gap:8px}
+  .nombre-perro{
+    flex:1;border:none;background:transparent;
+    font-family:'Bricolage Grotesque',sans-serif;
+    font-size:18px;font-weight:700;color:var(--tinta);
+    padding:4px 2px;border-bottom:2px dashed transparent;min-width:0;
+  }
+  .nombre-perro:focus{outline:none;border-bottom-color:var(--premio)}
+  .nombre-perro::placeholder{color:var(--ph)}
+  .badge-activo{
+    font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    background:var(--premio);color:#fff;border-radius:999px;padding:5px 10px;flex-shrink:0;
+  }
+  .btn-usar{
+    border:1.5px solid var(--campo);background:transparent;color:var(--campo);
+    border-radius:999px;padding:7px 14px;font-size:13px;font-weight:700;
+    font-family:inherit;cursor:pointer;flex-shrink:0;
+  }
+  body.tema-oscuro .btn-usar{border-color:var(--premio);color:var(--premio)}
+  .btn-usar:active{background:var(--premio-suave)}
+  .perro-stats{margin-top:8px;font-size:12.5px;color:var(--tinta-suave)}
+  .btn-borrar-perro{
+    margin-top:10px;width:100%;background:transparent;color:var(--peligro);
+    border:1.5px solid var(--peligro-f);border-radius:10px;padding:9px;
+    font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;
+  }
+  .btn-borrar-perro:active{background:var(--peligro-f)}
+
+  /* ---- Configuración ---- */
+  .overlay-config{
+    position:fixed;inset:0;background:rgba(20,26,21,.55);z-index:50;
+    overflow-y:auto;padding:20px 14px 40px;
+  }
+  .panel-config{
+    max-width:560px;margin:0 auto;background:var(--fondo);
+    border-radius:20px;padding:18px 16px;
+  }
+  .config-cab{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .config-titulo{
+    flex:1;font-family:'Bricolage Grotesque',sans-serif;
+    font-size:21px;font-weight:800;
+  }
+  .btn-cerrar{
+    border:none;background:var(--tarjeta);border:1px solid var(--linea);
+    color:var(--tinta);width:40px;height:40px;border-radius:12px;
+    font-size:18px;cursor:pointer;
+  }
+  .btn-cerrar:active{background:var(--pista)}
+  .swatches{display:flex;gap:10px;flex-wrap:wrap}
+  .swatch{
+    width:64px;border:none;background:transparent;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:5px;
+    font-family:inherit;font-size:11px;font-weight:600;color:var(--tinta-suave);
+    padding:4px;border-radius:12px;
+  }
+  .swatch .bola{
+    width:44px;height:44px;border-radius:50%;border:3px solid transparent;
+  }
+  .swatch.activo .bola{border-color:var(--tinta)}
+  .area-datos{
+    width:100%;border:1.5px solid var(--linea);border-radius:12px;
+    background:var(--insumo);padding:10px;font-family:monospace;font-size:11px;
+    color:var(--tinta);min-height:90px;resize:vertical;
+  }
+  .aviso-config{font-size:12.5px;margin-top:6px;min-height:16px;font-weight:600}
+  .aviso-config.ok{color:var(--exito)}
+  .aviso-config.err{color:var(--peligro)}
+
+  .btn-agregar{
+    position:fixed;left:50%;transform:translateX(-50%);bottom:18px;
+    background:var(--campo);color:#fff;border:none;border-radius:999px;
+    padding:15px 26px;font-size:16px;font-weight:700;font-family:inherit;
+    box-shadow:0 6px 18px rgba(20,30,22,.4);cursor:pointer;
+    display:flex;align-items:center;gap:8px;z-index:10;
+  }
+  .btn-agregar:active{background:var(--campo-osc)}
+  .btn-agregar svg{width:18px;height:18px}
+  .btn-agregar.oculto{display:none}
+
+  .vacio{text-align:center;padding:56px 24px;color:var(--tinta-suave)}
+  .vacio svg{width:64px;height:64px;margin-bottom:14px}
+  .vacio .relleno{fill:var(--pista)}
+  .vacio h2{font-family:'Bricolage Grotesque',sans-serif;font-size:19px;color:var(--tinta);margin-bottom:6px}
+  .vacio p{font-size:14px;line-height:1.5}
+
+  .pie-ayuda{
+    text-align:center;font-size:12px;color:var(--tinta-suave);
+    padding:4px 24px 10px;max-width:560px;margin:0 auto;
+  }
+  @media (prefers-reduced-motion: reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+
+<header id="cabecera"></header>
+<main id="lista"></main>
+<p class="pie-ayuda" id="ayuda"></p>
+
+<button class="btn-agregar" id="btnAgregar" aria-label="Agregar truco">
+  <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+  <span id="btnAgregarTxt">Agregar truco</span>
+</button>
+
+<script>
+const CLAVE_VIEJA = 'grilla-adiestramiento-v1';
+const CLAVE_CRONO_VIEJA = 'grilla-cronograma-v1';
+const CLAVE_PERROS = 'grilla-perros-v1';
+const CLAVE_CONFIG = 'grilla-config-v1';
+
+/* ====== Almacenamiento local del teléfono ======
+   Guarda en localStorage (queda en el dispositivo, sin servidores).
+   Si el navegador lo bloquea (modo privado, permisos), cae a memoria
+   temporal para que la app siga funcionando durante la sesión. */
+const memoriaTemporal = {};
+let almacenamientoOk = true;
+try{
+  const prueba = '__prueba_grilla__';
+  localStorage.setItem(prueba, '1');
+  localStorage.removeItem(prueba);
+}catch(e){ almacenamientoOk = false; }
+
+const store = {
+  get(clave){
+    try{
+      if(!almacenamientoOk) throw new Error('sin localStorage');
+      const v = localStorage.getItem(clave);
+      return v === null ? null : { value: v };
+    }catch(e){
+      return (clave in memoriaTemporal) ? { value: memoriaTemporal[clave] } : null;
+    }
+  },
+  set(clave, valor){
+    try{
+      if(!almacenamientoOk) throw new Error('sin localStorage');
+      localStorage.setItem(clave, valor);
+      return true;
+    }catch(e){
+      memoriaTemporal[clave] = valor;
+      return false;
+    }
+  }
+};
+
+let datos = { activo: null, perros: [] };
+let cfg = { idioma: 'es', tema: 'verde' };
+let items = [];
+let cronograma = [];
+let pestana = 'grilla';
+let vistaActual = null;
+let vetPerroId = null; /* perro cuya ficha se está viendo, elegido desde la pestaña Perros */
+let temporizadorGuardado = null;
+let temporizadorConfig = null;
+
+/* ================= TRADUCCIONES ================= */
+const L = {
+es:{
+  tabConductas:'Conductas', tabCrono:'Cronograma', tabVet:'Veterinaria', tabPerros:'Perros',
+  guardando:'Guardando…', guardadoOk:'Guardado ✓', guardadoErr:'No se pudo guardar. Reintentá en unos segundos.',
+  sinNombre:'Sin nombre', cerrar:'Cerrar',
+  cuaderno:'Cuaderno de campo', tituloGrilla:'Grilla de adiestramiento',
+  sinTrucosTodavia:'Sin trucos todavía', truco:'truco', trucos:'trucos',
+  dominado:'dominado', dominados:'dominados',
+  ayudaGrilla:'Tocá un truco para ver su historial de series y registrar una nueva.',
+  agregarTruco:'Agregar truco',
+  vacioTitulo:'Todavía no hay trucos',
+  vacioTexto:'Tocá «Agregar truco» para empezar la grilla de {n}.',
+  serie:'serie', series:'series', de:'de', exitos:'éxitos',
+  sinSeriesReg:'Sin series registradas',
+  ultimaSeriePref:'Última serie: estadio',
+  volverGrilla:'‹ Volver a conductas', historialTruco:'Historial del truco',
+  ayudaDetalle:'Estadio: 1 = recién aprendiendo · 5 = dominado. Cada serie que guardás se suma al acumulado.',
+  nombreTrucoPH:'Nombre del truco (ej.: sit)',
+  descripcionTruco:'Descripción del truco',
+  descripcionPH:'En qué consiste (ej.: el perro apoya la cola en el piso y mantiene la posición hasta la liberación)',
+  estadio:'Estadio', acumTitulo:'Acumulado de todas las series',
+  repeticiones:'repeticiones', tasaExito:'tasa de éxito',
+  registrarSerie:'Registrar nueva serie', repsSerie:'Repeticiones de la serie',
+  cuantasExito:'De esas, cuántas con éxito',
+  avisoExitos:'Los éxitos no pueden superar las repeticiones de la serie.',
+  obsSerie:'Observación de esta serie',
+  obsSeriePH:'Ej.: hoy respondió más rápido, se distrajo con la pelota…',
+  refuerzoUsado:'Refuerzo utilizado',
+  refuerzoPH:'Ej.: premio de hígado, clicker + comida, juego con pelota…',
+  refuerzosGuardados:'Tocá uno para reutilizarlo:',
+  refuerzoPref:'Refuerzo:', sinRefuerzo:'Sin refuerzo anotado',
+  refuerzoCol:'Refuerzo', quitarRefuerzoQ:'¿Quitar de la lista?',
+  guardarSerie:'Guardar serie', seriesAnteriores:'Series anteriores',
+  sinSeriesTruco:'Todavía no registraste ninguna serie de este truco.',
+  serieN:'Serie {n}', registroSinFecha:'Registro anterior (sin fecha)',
+  conExito:'con éxito', estadioMomento:'Estadio en ese momento:',
+  estadioNoReg:'Estadio no registrado (serie anterior a esta función)',
+  sinObs:'Sin observación', borrarQ:'¿Borrar?', quitarQ:'¿Quitar?',
+  eliminarTruco:'Eliminar este truco y todo su historial',
+  confirmNoDeshacer:'Tocá de nuevo para confirmar (no se puede deshacer)',
+  tituloCrono:'Cronograma semanal',
+  sinSesionesPlan:'Sin sesiones planificadas',
+  sesionPlan:'sesión planificada', sesionesPlan:'sesiones planificadas',
+  ayudaCrono:'Planificá qué conducta practicar cada día. Las conductas salen de la pestaña Conductas.',
+  agregarSesion:'Agregar sesión al cronograma',
+  primeroCrea:'Primero creá al menos una conducta en la pestaña «Conductas» para poder planificarla acá.',
+  diaSemana:'Día de la semana', conductaPracticar:'Conducta a practicar',
+  horaOpc:'Hora (opcional)', notaOpc:'Nota (opcional)',
+  notaPH:'Ej.: 2 series de 10, en el patio, con correa…',
+  agregarAlCrono:'Agregar al cronograma',
+  sinHora:'Sin hora', sinSesionesDia:'Sin sesiones',
+  conductaEliminada:'Conducta eliminada de la grilla',
+  limpiarCrono:'Limpiar cronograma completo',
+  confirmLimpiarCrono:'Tocá de nuevo para confirmar (se borran todas las sesiones planificadas)',
+  dias:['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'],
+  abrev:['dom','lun','mar','mié','jue','vie','sáb'],
+  tituloVet:'Datos del perro', resumenVet:'Ficha de {n}',
+  verDatos:'Ver datos del perro', volverPerros:'‹ Volver a perros',
+  ayudaVet:'Estos datos son un registro personal: no reemplazan la libreta sanitaria ni la consulta con tu veterinario/a.',
+  datosGenerales:'Datos generales', fechaNacimiento:'Fecha de nacimiento',
+  edadPref:'Edad:', fechaFutura:'Revisá la fecha: no puede ser futura',
+  raza:'Raza', razaPH:'Ej.: border collie, mestizo…',
+  pesoKg:'Peso (kg)', pesoPH:'Ej.: 12.5',
+  castradoQ:'¿Está castrado/a?', sinEspecificar:'Sin especificar', si:'Sí', no:'No',
+  ultimoCelo:'Fecha del último celo',
+  indicaCastrada:'Indicá si está castrada para habilitar el registro del último celo.',
+  definiSexo:'Definí el sexo de {n} en la pestaña «Perros». Si es hembra no castrada, acá vas a poder registrar su último celo.',
+  antirrabica:'Vacuna antirrábica', sextuple:'Vacuna séxtuple',
+  ultimaAplicacion:'Última aplicación', proximaRevac:'Próxima revacunación',
+  vencidaHace:'Revacunación vencida hace {d}', revacHoy:'La revacunación es hoy',
+  faltanRevac:'Faltan {d} para revacunar', alDia:'Al día · faltan {d}',
+  dia:'día', diasU:'días', anio:'año', anios:'años', mes:'mes', meses:'meses', y:'y',
+  tituloPerros:'Perfiles de perro', perfil:'perfil', perfiles:'perfiles',
+  enUso:'en uso: {n}', enUsoBadge:'En uso',
+  ayudaPerros:'Cada perro tiene su propia grilla, cronograma y planilla veterinaria.',
+  agregarPerro:'Agregar perro', nombrePerroPH:'Nombre del perro (ej.: Rocco)',
+  crearPerfil:'Crear perfil', conducta:'conducta', conductas:'conductas',
+  usar:'Usar', sexo:'Sexo', macho:'Macho', hembra:'Hembra',
+  eliminarPerfil:'Eliminar este perfil y todos sus datos',
+  confirmEliminarPerfil:'Tocá de nuevo para confirmar (se borra su grilla y cronograma)',
+  unicoPerfil:'El único perfil existente no se puede eliminar: siempre tiene que haber al menos uno.',
+  perroSinNombre:'Perro sin nombre', miPerro:'Mi perro',
+  config:'Configuración', idioma:'Idioma', colores:'Colores',
+  temaVerde:'Campo', temaOceano:'Océano', temaTerracota:'Atardecer', temaLavanda:'Lavanda', temaOscuro:'Nocturno',
+  exportarTitulo:'Exportar datos',
+  exportarTexto:'Copiá este texto y guardalo en un lugar seguro (una nota, un mail a vos misma). Es el respaldo completo de todos los perros.',
+  descargarRespaldo:'Descargar respaldo (.json)', copiar:'Copiar todo', copiado:'Copiado ✓',
+  copiarManual:'No se pudo copiar automáticamente: seleccioná el texto y copialo a mano.',
+  importarTitulo:'Importar datos',
+  importarPH:'Pegá acá el texto de un respaldo…',
+  importarBtn:'Importar (reemplaza los datos actuales)',
+  importOk:'Datos importados correctamente ✓',
+  importErr:'El texto pegado no es un respaldo válido.',
+  borrarTodo:'Borrar todos los datos',
+  confirmBorrarTodo:'Tocá de nuevo para confirmar (se borra TODO: perros, conductas, series, cronogramas y planillas)',
+  borradoOk:'Datos borrados. La app quedó como nueva.',
+  nombreCol:'Nombre', perroCol:'Perro', fechaCol:'Fecha', diaCol:'Día', horaCol:'Hora',
+  observacionCol:'Observación', notaCol:'Nota',
+  exportarExcel:'Descargar Excel (.xlsx)',
+  excelTexto:'El Excel arma una hoja por sección (perros, conductas, series y cronograma), fácil de leer e imprimir.',
+  respaldoTexto:'Respaldo de texto (necesario para importar)',
+  excelErr:'No se pudo generar el Excel en este entorno. Usá el respaldo de texto.',
+  excelOk:'Excel generado ✓'
+},
+en:{
+  tabConductas:'Behaviors', tabCrono:'Schedule', tabVet:'Veterinary', tabPerros:'Dogs',
+  guardando:'Saving…', guardadoOk:'Saved ✓', guardadoErr:'Could not save. Try again in a few seconds.',
+  sinNombre:'Unnamed', cerrar:'Close',
+  cuaderno:'Field notebook', tituloGrilla:'Training grid',
+  sinTrucosTodavia:'No tricks yet', truco:'trick', trucos:'tricks',
+  dominado:'mastered', dominados:'mastered',
+  ayudaGrilla:'Tap a trick to see its set history and log a new one.',
+  agregarTruco:'Add trick',
+  vacioTitulo:'No tricks yet',
+  vacioTexto:'Tap "Add trick" to start {n}\u2019s grid.',
+  serie:'set', series:'sets', de:'of', exitos:'successes',
+  sinSeriesReg:'No sets recorded',
+  ultimaSeriePref:'Last set: stage',
+  volverGrilla:'‹ Back to behaviors', historialTruco:'Trick history',
+  ayudaDetalle:'Stage: 1 = just learning · 5 = mastered. Every set you save adds to the totals.',
+  nombreTrucoPH:'Trick name (e.g.: sit)',
+  descripcionTruco:'Trick description',
+  descripcionPH:'What it consists of (e.g.: the dog puts its rear on the floor and holds until released)',
+  estadio:'Stage', acumTitulo:'Totals across all sets',
+  repeticiones:'repetitions', tasaExito:'success rate',
+  registrarSerie:'Log a new set', repsSerie:'Repetitions in this set',
+  cuantasExito:'Of those, how many succeeded',
+  avisoExitos:'Successes cannot exceed the repetitions in the set.',
+  obsSerie:'Notes for this set',
+  obsSeriePH:'E.g.: responded faster today, got distracted by the ball…',
+  refuerzoUsado:'Reinforcement used',
+  refuerzoPH:'E.g.: liver treat, clicker + food, ball play…',
+  refuerzosGuardados:'Tap one to reuse it:',
+  refuerzoPref:'Reinforcement:', sinRefuerzo:'No reinforcement noted',
+  refuerzoCol:'Reinforcement', quitarRefuerzoQ:'Remove from list?',
+  guardarSerie:'Save set', seriesAnteriores:'Previous sets',
+  sinSeriesTruco:'You haven\u2019t logged any sets for this trick yet.',
+  serieN:'Set {n}', registroSinFecha:'Earlier record (no date)',
+  conExito:'successful', estadioMomento:'Stage at that time:',
+  estadioNoReg:'Stage not recorded (set predates this feature)',
+  sinObs:'No notes', borrarQ:'Delete?', quitarQ:'Remove?',
+  eliminarTruco:'Delete this trick and its entire history',
+  confirmNoDeshacer:'Tap again to confirm (cannot be undone)',
+  tituloCrono:'Weekly schedule',
+  sinSesionesPlan:'No sessions planned',
+  sesionPlan:'session planned', sesionesPlan:'sessions planned',
+  ayudaCrono:'Plan which behavior to practice each day. Behaviors come from the Behaviors tab.',
+  agregarSesion:'Add session to schedule',
+  primeroCrea:'First create at least one behavior in the "Behaviors" tab so you can plan it here.',
+  diaSemana:'Day of the week', conductaPracticar:'Behavior to practice',
+  horaOpc:'Time (optional)', notaOpc:'Note (optional)',
+  notaPH:'E.g.: 2 sets of 10, in the yard, on leash…',
+  agregarAlCrono:'Add to schedule',
+  sinHora:'No time', sinSesionesDia:'No sessions',
+  conductaEliminada:'Behavior deleted from the grid',
+  limpiarCrono:'Clear entire schedule',
+  confirmLimpiarCrono:'Tap again to confirm (all planned sessions will be deleted)',
+  dias:['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],
+  abrev:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+  tituloVet:'Dog data', resumenVet:'{n}\u2019s record',
+  verDatos:'View dog data', volverPerros:'‹ Back to dogs',
+  ayudaVet:'This is a personal record: it does not replace the health booklet or your vet\u2019s advice.',
+  datosGenerales:'General data', fechaNacimiento:'Date of birth',
+  edadPref:'Age:', fechaFutura:'Check the date: it cannot be in the future',
+  raza:'Breed', razaPH:'E.g.: border collie, mixed…',
+  pesoKg:'Weight (kg)', pesoPH:'E.g.: 12.5',
+  castradoQ:'Spayed/neutered?', sinEspecificar:'Not specified', si:'Yes', no:'No',
+  ultimoCelo:'Date of last heat',
+  indicaCastrada:'Indicate whether she is spayed to enable the heat record.',
+  definiSexo:'Set {n}\u2019s sex in the "Dogs" tab. If she is an unspayed female, you\u2019ll be able to record her last heat here.',
+  antirrabica:'Rabies vaccine', sextuple:'Six-in-one (DHPPi-L) vaccine',
+  ultimaAplicacion:'Last dose', proximaRevac:'Next booster',
+  vencidaHace:'Booster overdue by {d}', revacHoy:'The booster is due today',
+  faltanRevac:'{d} until the booster', alDia:'Up to date · {d} left',
+  dia:'day', diasU:'days', anio:'year', anios:'years', mes:'month', meses:'months', y:'and',
+  tituloPerros:'Dog profiles', perfil:'profile', perfiles:'profiles',
+  enUso:'in use: {n}', enUsoBadge:'In use',
+  ayudaPerros:'Each dog has its own grid, schedule and veterinary sheet.',
+  agregarPerro:'Add dog', nombrePerroPH:'Dog\u2019s name (e.g.: Rocco)',
+  crearPerfil:'Create profile', conducta:'behavior', conductas:'behaviors',
+  usar:'Use', sexo:'Sex', macho:'Male', hembra:'Female',
+  eliminarPerfil:'Delete this profile and all its data',
+  confirmEliminarPerfil:'Tap again to confirm (its grid and schedule will be deleted)',
+  unicoPerfil:'The only existing profile cannot be deleted: there must always be at least one.',
+  perroSinNombre:'Unnamed dog', miPerro:'My dog',
+  config:'Settings', idioma:'Language', colores:'Colors',
+  temaVerde:'Field', temaOceano:'Ocean', temaTerracota:'Sunset', temaLavanda:'Lavender', temaOscuro:'Night',
+  exportarTitulo:'Export data',
+  exportarTexto:'Copy this text and keep it somewhere safe (a note, an email to yourself). It is the full backup of all dogs.',
+  descargarRespaldo:'Download backup (.json)', copiar:'Copy all', copiado:'Copied ✓',
+  copiarManual:'Automatic copy failed: select the text and copy it manually.',
+  importarTitulo:'Import data',
+  importarPH:'Paste a backup text here…',
+  importarBtn:'Import (replaces current data)',
+  importOk:'Data imported successfully ✓',
+  importErr:'The pasted text is not a valid backup.',
+  borrarTodo:'Delete all data',
+  confirmBorrarTodo:'Tap again to confirm (EVERYTHING will be deleted: dogs, behaviors, sets, schedules and sheets)',
+  borradoOk:'Data deleted. The app is like new.',
+  nombreCol:'Name', perroCol:'Dog', fechaCol:'Date', diaCol:'Day', horaCol:'Time',
+  observacionCol:'Notes', notaCol:'Note',
+  exportarExcel:'Download Excel (.xlsx)',
+  excelTexto:'The Excel file has one sheet per section (dogs, behaviors, sets and schedule), easy to read and print.',
+  respaldoTexto:'Text backup (needed for importing)',
+  excelErr:'Could not generate the Excel file in this environment. Use the text backup.',
+  excelOk:'Excel generated ✓'
+},
+pt:{
+  tabConductas:'Condutas', tabCrono:'Cronograma', tabVet:'Veterinária', tabPerros:'Cães',
+  guardando:'Salvando…', guardadoOk:'Salvo ✓', guardadoErr:'Não foi possível salvar. Tente de novo em alguns segundos.',
+  sinNombre:'Sem nome', cerrar:'Fechar',
+  cuaderno:'Caderno de campo', tituloGrilla:'Grade de adestramento',
+  sinTrucosTodavia:'Ainda sem truques', truco:'truque', trucos:'truques',
+  dominado:'dominado', dominados:'dominados',
+  ayudaGrilla:'Toque em um truque para ver o histórico de séries e registrar uma nova.',
+  agregarTruco:'Adicionar truque',
+  vacioTitulo:'Ainda não há truques',
+  vacioTexto:'Toque em "Adicionar truque" para começar a grade de {n}.',
+  serie:'série', series:'séries', de:'de', exitos:'acertos',
+  sinSeriesReg:'Sem séries registradas',
+  ultimaSeriePref:'Última série: estágio',
+  volverGrilla:'‹ Voltar às condutas', historialTruco:'Histórico do truque',
+  ayudaDetalle:'Estágio: 1 = começando a aprender · 5 = dominado. Cada série salva soma no acumulado.',
+  nombreTrucoPH:'Nome do truque (ex.: senta)',
+  descripcionTruco:'Descrição do truque',
+  descripcionPH:'Em que consiste (ex.: o cão apoia o traseiro no chão e mantém a posição até a liberação)',
+  estadio:'Estágio', acumTitulo:'Acumulado de todas as séries',
+  repeticiones:'repetições', tasaExito:'taxa de acerto',
+  registrarSerie:'Registrar nova série', repsSerie:'Repetições da série',
+  cuantasExito:'Dessas, quantas com acerto',
+  avisoExitos:'Os acertos não podem superar as repetições da série.',
+  obsSerie:'Observação desta série',
+  obsSeriePH:'Ex.: hoje respondeu mais rápido, se distraiu com a bola…',
+  refuerzoUsado:'Reforço utilizado',
+  refuerzoPH:'Ex.: petisco de fígado, clicker + comida, brincadeira com bola…',
+  refuerzosGuardados:'Toque em um para reutilizar:',
+  refuerzoPref:'Reforço:', sinRefuerzo:'Sem reforço anotado',
+  refuerzoCol:'Reforço', quitarRefuerzoQ:'Remover da lista?',
+  guardarSerie:'Salvar série', seriesAnteriores:'Séries anteriores',
+  sinSeriesTruco:'Você ainda não registrou nenhuma série deste truque.',
+  serieN:'Série {n}', registroSinFecha:'Registro anterior (sem data)',
+  conExito:'com acerto', estadioMomento:'Estágio naquele momento:',
+  estadioNoReg:'Estágio não registrado (série anterior a esta função)',
+  sinObs:'Sem observação', borrarQ:'Apagar?', quitarQ:'Remover?',
+  eliminarTruco:'Apagar este truque e todo o seu histórico',
+  confirmNoDeshacer:'Toque de novo para confirmar (não pode ser desfeito)',
+  tituloCrono:'Cronograma semanal',
+  sinSesionesPlan:'Sem sessões planejadas',
+  sesionPlan:'sessão planejada', sesionesPlan:'sessões planejadas',
+  ayudaCrono:'Planeje qual conduta praticar em cada dia. As condutas vêm da aba Condutas.',
+  agregarSesion:'Adicionar sessão ao cronograma',
+  primeroCrea:'Primeiro crie ao menos uma conduta na aba "Condutas" para poder planejá-la aqui.',
+  diaSemana:'Dia da semana', conductaPracticar:'Conduta a praticar',
+  horaOpc:'Hora (opcional)', notaOpc:'Nota (opcional)',
+  notaPH:'Ex.: 2 séries de 10, no quintal, com guia…',
+  agregarAlCrono:'Adicionar ao cronograma',
+  sinHora:'Sem hora', sinSesionesDia:'Sem sessões',
+  conductaEliminada:'Conduta apagada da grade',
+  limpiarCrono:'Limpar cronograma completo',
+  confirmLimpiarCrono:'Toque de novo para confirmar (todas as sessões planejadas serão apagadas)',
+  dias:['Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado','Domingo'],
+  abrev:['dom','seg','ter','qua','qui','sex','sáb'],
+  tituloVet:'Dados do cão', resumenVet:'Ficha de {n}',
+  verDatos:'Ver dados do cão', volverPerros:'‹ Voltar aos cães',
+  ayudaVet:'Estes dados são um registro pessoal: não substituem a carteira de vacinação nem a consulta com seu veterinário/a.',
+  datosGenerales:'Dados gerais', fechaNacimiento:'Data de nascimento',
+  edadPref:'Idade:', fechaFutura:'Revise a data: não pode ser futura',
+  raza:'Raça', razaPH:'Ex.: border collie, vira-lata…',
+  pesoKg:'Peso (kg)', pesoPH:'Ex.: 12.5',
+  castradoQ:'É castrado/a?', sinEspecificar:'Sem especificar', si:'Sim', no:'Não',
+  ultimoCelo:'Data do último cio',
+  indicaCastrada:'Indique se ela é castrada para habilitar o registro do cio.',
+  definiSexo:'Defina o sexo de {n} na aba "Cães". Se for fêmea não castrada, aqui você poderá registrar o último cio.',
+  antirrabica:'Vacina antirrábica', sextuple:'Vacina sêxtupla',
+  ultimaAplicacion:'Última aplicação', proximaRevac:'Próximo reforço',
+  vencidaHace:'Reforço vencido há {d}', revacHoy:'O reforço é hoje',
+  faltanRevac:'Faltam {d} para o reforço', alDia:'Em dia · faltam {d}',
+  dia:'dia', diasU:'dias', anio:'ano', anios:'anos', mes:'mês', meses:'meses', y:'e',
+  tituloPerros:'Perfis de cães', perfil:'perfil', perfiles:'perfis',
+  enUso:'em uso: {n}', enUsoBadge:'Em uso',
+  ayudaPerros:'Cada cão tem sua própria grade, cronograma e ficha veterinária.',
+  agregarPerro:'Adicionar cão', nombrePerroPH:'Nome do cão (ex.: Rocco)',
+  crearPerfil:'Criar perfil', conducta:'conduta', conductas:'condutas',
+  usar:'Usar', sexo:'Sexo', macho:'Macho', hembra:'Fêmea',
+  eliminarPerfil:'Apagar este perfil e todos os seus dados',
+  confirmEliminarPerfil:'Toque de novo para confirmar (a grade e o cronograma serão apagados)',
+  unicoPerfil:'O único perfil existente não pode ser apagado: sempre deve haver ao menos um.',
+  perroSinNombre:'Cão sem nome', miPerro:'Meu cão',
+  config:'Configurações', idioma:'Idioma', colores:'Cores',
+  temaVerde:'Campo', temaOceano:'Oceano', temaTerracota:'Entardecer', temaLavanda:'Lavanda', temaOscuro:'Noturno',
+  exportarTitulo:'Exportar dados',
+  exportarTexto:'Copie este texto e guarde em um lugar seguro (uma nota, um e-mail para você). É o backup completo de todos os cães.',
+  descargarRespaldo:'Baixar backup (.json)', copiar:'Copiar tudo', copiado:'Copiado ✓',
+  copiarManual:'Não foi possível copiar automaticamente: selecione o texto e copie manualmente.',
+  importarTitulo:'Importar dados',
+  importarPH:'Cole aqui o texto de um backup…',
+  importarBtn:'Importar (substitui os dados atuais)',
+  importOk:'Dados importados com sucesso ✓',
+  importErr:'O texto colado não é um backup válido.',
+  borrarTodo:'Apagar todos os dados',
+  confirmBorrarTodo:'Toque de novo para confirmar (TUDO será apagado: cães, condutas, séries, cronogramas e fichas)',
+  borradoOk:'Dados apagados. O app ficou como novo.',
+  nombreCol:'Nome', perroCol:'Cão', fechaCol:'Data', diaCol:'Dia', horaCol:'Hora',
+  observacionCol:'Observação', notaCol:'Nota',
+  exportarExcel:'Baixar Excel (.xlsx)',
+  excelTexto:'O Excel tem uma planilha por seção (cães, condutas, séries e cronograma), fácil de ler e imprimir.',
+  respaldoTexto:'Backup de texto (necessário para importar)',
+  excelErr:'Não foi possível gerar o Excel neste ambiente. Use o backup de texto.',
+  excelOk:'Excel gerado ✓'
+}
+};
+
+function t(k, vars){
+  let s = (L[cfg.idioma] && L[cfg.idioma][k]);
+  if(s === undefined) s = L.es[k];
+  if(s === undefined) return k;
+  if(vars && typeof s === 'string'){
+    for(const key in vars) s = s.split('{'+key+'}').join(vars[key]);
+  }
+  return s;
+}
+
+/* ================= TEMAS ================= */
+const VARS_TEMA = ['--campo','--campo-osc','--premio','--premio-suave','--fondo','--tarjeta',
+  '--tinta','--tinta-suave','--linea','--peligro','--peligro-f','--exito','--insumo','--pista',
+  '--panel','--form-f','--activo-f','--ph','--head-tx','--head-sub','--head-save'];
+
+const TEMAS = {
+  verde: {},
+  oceano: {
+    '--campo':'#1D4E63','--campo-osc':'#153A4B','--premio':'#F2B441','--premio-suave':'#FBE8C4',
+    '--fondo':'#EAF0F2','--tinta':'#16232A','--tinta-suave':'#52666E','--linea':'#D3DEE2',
+    '--exito':'#2E7D66','--insumo':'#F7FAFB','--pista':'#DDE6E9','--panel':'#F1F6F7',
+    '--form-f':'#FFFDF6','--activo-f':'#FBFDFE','--ph':'#9FB0B8'
+  },
+  terracota: {
+    '--campo':'#9A4A34','--campo-osc':'#7A3826','--premio':'#E0A245','--premio-suave':'#F6E3C2',
+    '--fondo':'#F4EEE7','--tinta':'#2A211C','--tinta-suave':'#6E5F55','--linea':'#E2D8CC',
+    '--exito':'#4C7A4F','--insumo':'#FBF8F4','--pista':'#EAE1D5','--panel':'#F6F1EA',
+    '--form-f':'#FEF9EF','--activo-f':'#FDFAF5','--ph':'#B3A597'
+  },
+  lavanda: {
+    '--campo':'#4A3B78','--campo-osc':'#382C5C','--premio':'#E8A33D','--premio-suave':'#F6E3C2',
+    '--fondo':'#EFEDF5','--tinta':'#221E33','--tinta-suave':'#5D5876','--linea':'#DAD6E6',
+    '--exito':'#3E7B4F','--insumo':'#F9F8FC','--pista':'#E3E0EE','--panel':'#F3F1F8',
+    '--form-f':'#FBF8F2','--activo-f':'#FBFAFE','--ph':'#A8A3BC'
+  },
+  oscuro: {
+    '--campo':'#26492C','--campo-osc':'#1B3520','--premio':'#E8A33D','--premio-suave':'#574222',
+    '--fondo':'#171B17','--tarjeta':'#212822','--tinta':'#E9EEE7','--tinta-suave':'#9FAC9D',
+    '--linea':'#364136','--peligro':'#D96A6A','--peligro-f':'#4A2A2A','--exito':'#6FBF87',
+    '--insumo':'#2A322B','--pista':'#333D34','--panel':'#262E27','--form-f':'#2A2E24',
+    '--activo-f':'#2B332C','--ph':'#6F7C6E'
+  }
+};
+
+function aplicarTema(){
+  const root = document.documentElement;
+  VARS_TEMA.forEach(v=>root.style.removeProperty(v));
+  const tema = TEMAS[cfg.tema] || {};
+  for(const k in tema) root.style.setProperty(k, tema[k]);
+  document.body.classList.toggle('tema-oscuro', cfg.tema === 'oscuro');
+}
+
+/* ================= MODELO ================= */
+function nuevoPerro(nombre){
+  return {
+    id: 'p' + Date.now() + Math.floor(Math.random()*1000),
+    nombre: nombre || '',
+    sexo: '',
+    vet: vetVacio(),
+    trucos: [],
+    cronograma: []
+  };
+}
+function vetVacio(){
+  return {
+    nacimiento: '', raza: '', peso: '',
+    antirrabicaUltima: '', antirrabicaProxima: '',
+    sextupleUltima: '', sextupleProxima: '',
+    castrado: '', ultimoCelo: ''
+  };
+}
+function perroActual(){
+  return datos.perros.find(p=>p.id===datos.activo) || null;
+}
+function activarRefs(){
+  const p = perroActual();
+  items = p ? p.trucos : [];
+  cronograma = p ? p.cronograma : [];
+}
+function setItems(arr){
+  const p = perroActual();
+  if(p) p.trucos = arr;
+  items = arr;
+}
+function setCronograma(arr){
+  const p = perroActual();
+  if(p) p.cronograma = arr;
+  cronograma = arr;
+}
+function nuevoItem(){
+  return {
+    id: 'i' + Date.now() + Math.floor(Math.random()*1000),
+    truco: '', descripcion: '', estadio: 1, series: []
+  };
+}
+
+function migrarTrucos(arr){
+  return arr.map(it=>{
+    if(typeof it.descripcion !== 'string') it.descripcion = '';
+    if(!Array.isArray(it.series)){
+      it.series = [];
+      const total = (typeof it.total === 'number') ? it.total
+                  : (typeof it.reps === 'number') ? it.reps : 0;
+      const exitos = (typeof it.exitos === 'number') ? Math.min(it.exitos, total) : 0;
+      const obs = it.obs || '';
+      if(total > 0 || obs.trim()){
+        it.series.push({
+          id: 's' + Date.now() + Math.floor(Math.random()*1000),
+          fecha: null, total: total, exitos: exitos, obs: obs
+        });
+      }
+      delete it.total; delete it.exitos; delete it.obs; delete it.reps;
+    }
+    return it;
+  });
+}
+
+function sanearDatos(){
+  if(!Array.isArray(datos.refuerzos)) datos.refuerzos = [];
+  if(!Array.isArray(datos.perros) || datos.perros.length === 0){
+    const p = nuevoPerro(t('miPerro'));
+    datos = { activo: p.id, perros: [p] };
+  }
+  if(!datos.perros.some(p=>p.id===datos.activo)){
+    datos.activo = datos.perros[0].id;
+  }
+  datos.perros.forEach(p=>{
+    if(!Array.isArray(p.trucos)) p.trucos = [];
+    if(!Array.isArray(p.cronograma)) p.cronograma = [];
+    if(typeof p.sexo !== 'string') p.sexo = '';
+    if(!p.vet || typeof p.vet !== 'object') p.vet = vetVacio();
+    const base = vetVacio();
+    Object.keys(base).forEach(k=>{ if(typeof p.vet[k] !== 'string') p.vet[k] = base[k]; });
+    p.trucos = migrarTrucos(p.trucos);
+  });
+}
+
+async function cargar(){
+  try{
+    const c = store.get(CLAVE_CONFIG);
+    if(c && c.value){
+      const parsed = JSON.parse(c.value);
+      if(parsed.idioma && L[parsed.idioma]) cfg.idioma = parsed.idioma;
+      if(parsed.tema && TEMAS[parsed.tema] !== undefined) cfg.tema = parsed.tema;
+    }
+  }catch(e){}
+  aplicarTema();
+
+  let cargado = false;
+  try{
+    const r = store.get(CLAVE_PERROS);
+    if(r && r.value){
+      datos = JSON.parse(r.value);
+      cargado = true;
+    }
+  }catch(e){}
+
+  if(!cargado){
+    let trucosViejos = [], cronoViejo = [];
+    try{
+      const r = store.get(CLAVE_VIEJA);
+      if(r && r.value) trucosViejos = migrarTrucos(JSON.parse(r.value));
+    }catch(e){}
+    try{
+      const c = store.get(CLAVE_CRONO_VIEJA);
+      if(c && c.value) cronoViejo = JSON.parse(c.value);
+    }catch(e){}
+    const primero = nuevoPerro(t('miPerro'));
+    primero.trucos = trucosViejos;
+    primero.cronograma = cronoViejo;
+    datos = { activo: primero.id, perros: [primero] };
+  }
+
+  sanearDatos();
+  activarRefs();
+  render();
+}
+
+function programarGuardado(){
+  clearTimeout(temporizadorGuardado);
+  mostrarEstado(t('guardando'));
+  temporizadorGuardado = setTimeout(guardar, 600);
+}
+async function guardar(){
+  try{
+    const r = store.set(CLAVE_PERROS, JSON.stringify(datos));
+    mostrarEstado(r ? t('guardadoOk') : t('guardadoErr'));
+  }catch(e){
+    mostrarEstado(t('guardadoErr'));
+  }
+}
+function programarGuardadoConfig(){
+  clearTimeout(temporizadorConfig);
+  temporizadorConfig = setTimeout(async ()=>{
+    try{ store.set(CLAVE_CONFIG, JSON.stringify(cfg)); }catch(e){}
+  }, 300);
+}
+function mostrarEstado(txt){
+  const el = document.getElementById('estadoGuardado');
+  if(el) el.textContent = txt;
+}
+
+function escapar(x){
+  return (x||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function conConfirmacion(btn, htmlOriginal, textoConfirm, accion){
+  let armado = false, timer = null;
+  btn.addEventListener('click', ()=>{
+    if(!armado){
+      armado = true;
+      btn.innerHTML = textoConfirm;
+      btn.classList.add('confirmando');
+      timer = setTimeout(()=>{
+        armado = false;
+        btn.innerHTML = htmlOriginal;
+        btn.classList.remove('confirmando');
+      }, 3000);
+    } else {
+      clearTimeout(timer);
+      accion();
+    }
+  });
+}
+
+function acumulado(item){
+  let total = 0, exitos = 0;
+  item.series.forEach(s=>{ total += s.total; exitos += s.exitos; });
+  const pct = total > 0 ? Math.round(100*exitos/total) : null;
+  return {total, exitos, pct, cantSeries: item.series.length};
+}
+
+function fechaLegible(iso){
+  if(!iso) return t('registroSinFecha');
+  const d = new Date(iso);
+  const ab = t('abrev');
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mi = String(d.getMinutes()).padStart(2,'0');
+  return ab[d.getDay()] + ' ' + dd + '/' + mm + '/' + d.getFullYear() + ' · ' + hh + ':' + mi;
+}
+
+const PAW = `
+<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <ellipse class="relleno" cx="20" cy="26" rx="9" ry="7.5"/>
+  <circle class="relleno" cx="9.5" cy="17" r="4"/>
+  <circle class="relleno" cx="16.5" cy="11.5" r="4.2"/>
+  <circle class="relleno" cx="23.5" cy="11.5" r="4.2"/>
+  <circle class="relleno" cx="30.5" cy="17" r="4"/>
+</svg>`;
+
+const GEAR = `
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <circle cx="12" cy="12" r="3.2"/>
+  <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.11-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.56-1.11 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.01A1.7 1.7 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.01c.26.63.87 1.04 1.56 1.04H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51.94z"/>
+</svg>`;
+
+function huellasMini(estadio){
+  let h = '<div class="huellas-mini">';
+  for(let n=1;n<=5;n++){
+    h += `<span class="${n<=estadio?'activa':''}">${PAW}</span>`;
+  }
+  return h + '</div>';
+}
+
+function nombrePerroActual(){
+  const p = perroActual();
+  return p ? (p.nombre.trim() || t('perroSinNombre')) : '';
+}
+
+function htmlBotonConfig(){
+  return `<button class="btn-config" id="btnConfig" aria-label="${t('config')}">${GEAR}</button>`;
+}
+function conectarBotonConfig(){
+  const b = document.getElementById('btnConfig');
+  if(b) b.addEventListener('click', abrirConfig);
+}
+
+function htmlSelectorPerro(){
+  if(datos.perros.length < 2) return '';
+  let ops = '';
+  datos.perros.forEach(p=>{
+    ops += `<option value="${p.id}" ${p.id===datos.activo?'selected':''}>🐾 ${escapar(p.nombre.trim() || t('perroSinNombre'))}</option>`;
+  });
+  return `<select class="sel-perro" id="selPerro">${ops}</select>`;
+}
+function conectarSelectorPerro(){
+  const s = document.getElementById('selPerro');
+  if(s) s.addEventListener('change', ()=>{
+    datos.activo = s.value;
+    activarRefs();
+    vistaActual = null;
+    programarGuardado();
+    render();
+  });
+}
+
+function htmlPestanas(){
+  return `
+    <div class="pestanas">
+      <button class="pestana ${pestana==='grilla'?'activa':''}" id="tabGrilla">${t('tabConductas')}</button>
+      <button class="pestana ${pestana==='crono'?'activa':''}" id="tabCrono">${t('tabCrono')}</button>
+      <button class="pestana ${pestana==='perros'?'activa':''}" id="tabPerros">${t('tabPerros')}</button>
+    </div>`;
+}
+function conectarPestanas(){
+  const g = document.getElementById('tabGrilla');
+  const c = document.getElementById('tabCrono');
+  const p = document.getElementById('tabPerros');
+  if(g) g.addEventListener('click', ()=>{ pestana='grilla'; vistaActual=null; render(); });
+  if(c) c.addEventListener('click', ()=>{ pestana='crono'; vistaActual=null; render(); });
+  if(p) p.addEventListener('click', ()=>{ pestana='perros'; vistaActual=null; render(); });
+}
+
+/* ================= CONDUCTAS: LISTA ================= */
+function renderLista(){
+  const cab = document.getElementById('cabecera');
+  cab.className = '';
+  const dominados = items.filter(i=>i.estadio===5).length;
+  cab.innerHTML = `
+    ${htmlBotonConfig()}
+    <div class="eyebrow">${t('cuaderno')} · ${escapar(nombrePerroActual())}</div>
+    <h1>${t('tituloGrilla')}</h1>
+    <div class="resumen">${
+      items.length===0 ? t('sinTrucosTodavia')
+      : items.length + ' ' + (items.length===1?t('truco'):t('trucos')) + ' · ' + dominados + ' ' + (dominados===1?t('dominado'):t('dominados'))
+    }</div>
+    <div class="estado-guardado" id="estadoGuardado"></div>
+    ${htmlSelectorPerro()}
+    ${htmlPestanas()}
+  `;
+  conectarBotonConfig();
+  conectarSelectorPerro();
+  conectarPestanas();
+  document.getElementById('ayuda').textContent = t('ayudaGrilla');
+  const btnA = document.getElementById('btnAgregar');
+  btnA.classList.remove('oculto');
+  document.getElementById('btnAgregarTxt').textContent = t('agregarTruco');
+
+  const lista = document.getElementById('lista');
+  lista.innerHTML = '';
+
+  if(items.length === 0){
+    lista.innerHTML = `
+      <div class="vacio">
+        ${PAW}
+        <h2>${t('vacioTitulo')}</h2>
+        <p>${t('vacioTexto', {n: escapar(nombrePerroActual())})}</p>
+      </div>`;
+    return;
+  }
+
+  items.forEach((item, idx)=>{
+    const a = acumulado(item);
+    const card = document.createElement('div');
+    card.className = 'tarjeta-lista';
+    card.innerHTML = `
+      <div class="orden-col">
+        <button class="btn-orden" data-mover="-1" ${idx===0?'disabled':''} aria-label="↑">↑</button>
+        <button class="btn-orden" data-mover="1" ${idx===items.length-1?'disabled':''} aria-label="↓">↓</button>
+      </div>
+      <div class="info-lista">
+        <div class="nombre-lista ${item.truco.trim()?'':'sin-nombre'}">${escapar(item.truco.trim()) || t('sinNombre')}</div>
+        ${item.descripcion && item.descripcion.trim() ? `<div class="desc-lista">${escapar(item.descripcion.trim())}</div>` : ''}
+        ${huellasMini(item.estadio)}
+        <div class="stats-lista">${
+          a.total>0
+            ? a.cantSeries + ' ' + (a.cantSeries===1?t('serie'):t('series')) + ' · <b>' + a.exitos + '</b> ' + t('de') + ' ' + a.total + ' ' + t('exitos') + ' (' + a.pct + '%)'
+            : t('sinSeriesReg')
+        }</div>
+        ${(()=>{
+          const ult = item.series[0];
+          if(ult && typeof ult.estadio === 'number'){
+            return '<div class="stats-lista">' + t('ultimaSeriePref') + ' <b style="color:var(--premio)">' + ult.estadio + ' / 5</b> · ' + fechaLegible(ult.fecha) + '</div>';
+          }
+          return '';
+        })()}
+      </div>
+      <span class="flecha">›</span>
+    `;
+    card.addEventListener('click', ()=>{ vistaActual = item.id; render(); });
+    card.querySelectorAll('.btn-orden').forEach(b=>{
+      b.addEventListener('click', ev=>{
+        ev.stopPropagation();
+        const delta = parseInt(b.dataset.mover,10);
+        const i = items.indexOf(item);
+        const j = i + delta;
+        if(j < 0 || j >= items.length) return;
+        [items[i], items[j]] = [items[j], items[i]];
+        programarGuardado();
+        render();
+      });
+    });
+    lista.appendChild(card);
+  });
+}
+
+/* ================= CONDUCTAS: DETALLE ================= */
+function renderDetalle(item){
+  const cab = document.getElementById('cabecera');
+  cab.className = 'sin-pestanas';
+  cab.innerHTML = `
+    ${htmlBotonConfig()}
+    <button class="btn-volver" id="btnVolver">${t('volverGrilla')}</button>
+    <div class="eyebrow">${t('historialTruco')} · ${escapar(nombrePerroActual())}</div>
+    <h1>${escapar(item.truco.trim()) || t('sinNombre')}</h1>
+    <div class="estado-guardado" id="estadoGuardado"></div>
+  `;
+  conectarBotonConfig();
+  document.getElementById('btnVolver').addEventListener('click', ()=>{ vistaActual = null; render(); });
+  document.getElementById('ayuda').textContent = t('ayudaDetalle');
+  document.getElementById('btnAgregar').classList.add('oculto');
+
+  const lista = document.getElementById('lista');
+  lista.innerHTML = '';
+
+  const a = acumulado(item);
+  const card = document.createElement('div');
+  card.className = 'tarjeta';
+
+  let huellas = '';
+  for(let n=1;n<=5;n++){
+    huellas += `<button class="huella ${n<=item.estadio?'activa':''}" data-n="${n}" aria-label="${t('estadio')} ${n}">${PAW}</button>`;
+  }
+
+  card.innerHTML = `
+    <div class="fila-titulo">
+      <input class="nombre-truco" type="text" value="${escapar(item.truco)}"
+             placeholder="${t('nombreTrucoPH')}" maxlength="60">
+      <button class="btn-borrar" aria-label="✕">✕</button>
+    </div>
+
+    <div class="bloque">
+      <span class="etiqueta">${t('descripcionTruco')}</span>
+      <textarea class="obs desc-truco" rows="2" maxlength="300"
+        placeholder="${t('descripcionPH')}">${escapar(item.descripcion || '')}</textarea>
+    </div>
+
+    <div class="bloque">
+      <span class="etiqueta">${t('estadio')}</span>
+      <div class="huellas">
+        ${huellas}
+        <span class="texto-estadio">${item.estadio} / 5</span>
+      </div>
+    </div>
+
+    <div class="bloque">
+      <span class="etiqueta">${t('acumTitulo')}</span>
+      <div class="acumulado">
+        <div class="dato-acum"><div class="valor">${a.cantSeries}</div><div class="desc">${a.cantSeries===1?t('serie'):t('series')}</div></div>
+        <div class="dato-acum"><div class="valor">${a.total}</div><div class="desc">${t('repeticiones')}</div></div>
+        <div class="dato-acum"><div class="valor verde">${a.exitos}</div><div class="desc">${t('exitos')}</div></div>
+        <div class="dato-acum"><div class="valor verde">${a.pct===null?'—':a.pct+'%'}</div><div class="desc">${t('tasaExito')}</div></div>
+      </div>
+      <div class="barra-exito"><div style="width:${a.pct===null?0:a.pct}%"></div></div>
+      ${(()=>{
+        const ult = item.series[0];
+        if(ult && typeof ult.estadio === 'number'){
+          return '<div class="serie-estadio" style="margin-top:8px">' + t('ultimaSeriePref') + ' <b>' + ult.estadio + ' / 5</b> · ' + fechaLegible(ult.fecha) + '</div>';
+        }
+        return '';
+      })()}
+    </div>
+  `;
+  lista.appendChild(card);
+
+  const form = document.createElement('div');
+  form.className = 'tarjeta form-serie';
+  form.innerHTML = `
+    <span class="etiqueta">${t('registrarSerie')}</span>
+
+    <div class="grupo-reps">
+      <span class="sub-etiqueta">${t('repsSerie')}</span>
+      <div class="fila-reps">
+        <button class="btn-paso" id="totalMenos">−</button>
+        <input class="num-reps" id="inputTotal" type="number" inputmode="numeric" min="0" value="0">
+        <button class="btn-paso" id="totalMas">+</button>
+      </div>
+    </div>
+
+    <div class="grupo-reps">
+      <span class="sub-etiqueta">${t('cuantasExito')}</span>
+      <div class="fila-reps">
+        <button class="btn-paso" id="exitoMenos">−</button>
+        <input class="num-reps" id="inputExitos" type="number" inputmode="numeric" min="0" value="0">
+        <button class="btn-paso" id="exitoMas">+</button>
+      </div>
+      <div class="aviso-error" id="avisoError"></div>
+    </div>
+
+    <span class="sub-etiqueta">${t('refuerzoUsado')}</span>
+    <div id="zonaChips"></div>
+    <input class="input-texto" id="inputRefuerzo" type="text" maxlength="60"
+           placeholder="${t('refuerzoPH')}">
+
+    <span class="sub-etiqueta">${t('obsSerie')}</span>
+    <textarea class="obs" id="inputObs" rows="2" maxlength="300"
+      placeholder="${t('obsSeriePH')}"></textarea>
+
+    <button class="btn-guardar-serie" id="btnGuardarSerie" disabled>${t('guardarSerie')}</button>
+  `;
+  lista.appendChild(form);
+
+  const inputTotal = form.querySelector('#inputTotal');
+  const inputExitos = form.querySelector('#inputExitos');
+  const inputObs = form.querySelector('#inputObs');
+  const inputRefuerzo = form.querySelector('#inputRefuerzo');
+  const zonaChips = form.querySelector('#zonaChips');
+
+  /* Precarga el refuerzo de la última serie de este truco, para repetirlo rápido */
+  if(item.series[0] && item.series[0].refuerzo){
+    inputRefuerzo.value = item.series[0].refuerzo;
+  }
+
+  function pintarChips(){
+    zonaChips.innerHTML = '';
+    if(!datos.refuerzos.length) return;
+    const aviso = document.createElement('div');
+    aviso.className = 'sub-etiqueta';
+    aviso.textContent = t('refuerzosGuardados');
+    zonaChips.appendChild(aviso);
+
+    const cont = document.createElement('div');
+    cont.className = 'chips';
+    datos.refuerzos.forEach(r=>{
+      const chip = document.createElement('span');
+      chip.className = 'chip' + (inputRefuerzo.value.trim()===r ? ' sel' : '');
+      const btn = document.createElement('button');
+      btn.className = 'chip-txt';
+      btn.textContent = r;
+      btn.addEventListener('click', ()=>{
+        inputRefuerzo.value = (inputRefuerzo.value.trim()===r) ? '' : r;
+        pintarChips();
+      });
+      const x = document.createElement('button');
+      x.className = 'chip-x';
+      x.textContent = '✕';
+      conConfirmacion(x, '✕', t('quitarRefuerzoQ'), ()=>{
+        datos.refuerzos = datos.refuerzos.filter(v=>v!==r);
+        programarGuardado();
+        pintarChips();
+      });
+      chip.appendChild(btn);
+      chip.appendChild(x);
+      cont.appendChild(chip);
+    });
+    zonaChips.appendChild(cont);
+  }
+  pintarChips();
+  inputRefuerzo.addEventListener('input', pintarChips);
+
+  const btnGuardar = form.querySelector('#btnGuardarSerie');
+  const btnExitoMas = form.querySelector('#exitoMas');
+  const aviso = form.querySelector('#avisoError');
+
+  function leerFormulario(){
+    let total = parseInt(inputTotal.value,10); if(isNaN(total)||total<0) total = 0;
+    let exitos = parseInt(inputExitos.value,10); if(isNaN(exitos)||exitos<0) exitos = 0;
+    if(exitos > total){
+      exitos = total;
+      inputExitos.value = exitos;
+      aviso.textContent = t('avisoExitos');
+    } else {
+      aviso.textContent = '';
+    }
+    btnExitoMas.disabled = (exitos >= total);
+    btnGuardar.disabled = (total <= 0);
+    return {total, exitos};
+  }
+
+  form.querySelector('#totalMas').addEventListener('click', ()=>{
+    inputTotal.value = (parseInt(inputTotal.value,10)||0) + 1; leerFormulario();
+  });
+  form.querySelector('#totalMenos').addEventListener('click', ()=>{
+    inputTotal.value = Math.max(0,(parseInt(inputTotal.value,10)||0) - 1); leerFormulario();
+  });
+  btnExitoMas.addEventListener('click', ()=>{
+    inputExitos.value = (parseInt(inputExitos.value,10)||0) + 1; leerFormulario();
+  });
+  form.querySelector('#exitoMenos').addEventListener('click', ()=>{
+    inputExitos.value = Math.max(0,(parseInt(inputExitos.value,10)||0) - 1); leerFormulario();
+  });
+  inputTotal.addEventListener('input', leerFormulario);
+  inputExitos.addEventListener('input', leerFormulario);
+  leerFormulario();
+
+  btnGuardar.addEventListener('click', ()=>{
+    const {total, exitos} = leerFormulario();
+    if(total <= 0) return;
+    const refuerzo = inputRefuerzo.value.trim();
+    if(refuerzo && !datos.refuerzos.includes(refuerzo)) datos.refuerzos.push(refuerzo);
+    item.series.unshift({
+      id: 's' + Date.now() + Math.floor(Math.random()*1000),
+      fecha: new Date().toISOString(),
+      estadio: item.estadio,
+      total: total,
+      exitos: exitos,
+      refuerzo: refuerzo,
+      obs: inputObs.value.trim()
+    });
+    programarGuardado();
+    render();
+  });
+
+  card.querySelector('.nombre-truco').addEventListener('input', e=>{
+    item.truco = e.target.value;
+    const h1 = document.querySelector('#cabecera h1');
+    if(h1) h1.textContent = item.truco.trim() || t('sinNombre');
+    programarGuardado();
+  });
+
+  card.querySelector('.desc-truco').addEventListener('input', e=>{
+    item.descripcion = e.target.value;
+    programarGuardado();
+  });
+
+  card.querySelectorAll('.huella').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      item.estadio = parseInt(b.dataset.n,10);
+      card.querySelectorAll('.huella').forEach(h=>{
+        h.classList.toggle('activa', parseInt(h.dataset.n,10) <= item.estadio);
+      });
+      card.querySelector('.texto-estadio').textContent = item.estadio + ' / 5';
+      programarGuardado();
+    });
+  });
+
+  conConfirmacion(card.querySelector('.btn-borrar'), '✕', t('borrarQ'), ()=>{
+    setItems(items.filter(i=>i.id!==item.id));
+    vistaActual = null;
+    render(); programarGuardado();
+  });
+
+  const titulo = document.createElement('div');
+  titulo.className = 'titulo-historial';
+  titulo.textContent = t('seriesAnteriores');
+  lista.appendChild(titulo);
+
+  if(item.series.length === 0){
+    const vacio = document.createElement('div');
+    vacio.className = 'sin-series';
+    vacio.textContent = t('sinSeriesTruco');
+    lista.appendChild(vacio);
+  } else {
+    const cant = item.series.length;
+    item.series.forEach((s, idx)=>{
+      const pct = s.total > 0 ? Math.round(100*s.exitos/s.total) : 0;
+      const div = document.createElement('div');
+      div.className = 'serie';
+      div.innerHTML = `
+        <div class="serie-cab">
+          <span class="serie-num">${t('serieN', {n: cant - idx})}</span>
+          <span class="serie-fecha">${fechaLegible(s.fecha)}</span>
+          <button class="btn-borrar-serie">✕</button>
+        </div>
+        <div class="serie-datos"><b>${s.exitos}</b> ${t('de')} ${s.total} ${t('conExito')} · ${pct}%</div>
+        <div class="serie-estadio">${
+          (typeof s.estadio === 'number')
+            ? t('estadioMomento') + ' <b>' + s.estadio + ' / 5</b>'
+            : t('estadioNoReg')
+        }</div>
+        <div class="serie-barra"><div style="width:${pct}%"></div></div>
+        <div class="serie-refuerzo">${
+          s.refuerzo ? t('refuerzoPref') + ' <b>' + escapar(s.refuerzo) + '</b>' : t('sinRefuerzo')
+        }</div>
+        <div class="serie-obs ${s.obs?'':'vacia'}">${s.obs ? escapar(s.obs) : t('sinObs')}</div>
+      `;
+      conConfirmacion(div.querySelector('.btn-borrar-serie'), '✕', t('borrarQ'), ()=>{
+        item.series = item.series.filter(x=>x.id!==s.id);
+        programarGuardado();
+        render();
+      });
+      lista.appendChild(div);
+    });
+  }
+
+  const btnEliminar = document.createElement('button');
+  btnEliminar.className = 'btn-eliminar-truco';
+  btnEliminar.textContent = t('eliminarTruco');
+  conConfirmacion(btnEliminar, t('eliminarTruco'), t('confirmNoDeshacer'), ()=>{
+    setItems(items.filter(i=>i.id!==item.id));
+    vistaActual = null;
+    render(); programarGuardado();
+  });
+  lista.appendChild(btnEliminar);
+}
+
+/* ================= CRONOGRAMA ================= */
+function nombreTruco(trucoId){
+  const tk = items.find(i=>i.id===trucoId);
+  return tk ? (tk.truco.trim() || t('sinNombre')) : null;
+}
+
+function renderCronograma(){
+  const cab = document.getElementById('cabecera');
+  cab.className = '';
+  cab.innerHTML = `
+    ${htmlBotonConfig()}
+    <div class="eyebrow">${t('cuaderno')} · ${escapar(nombrePerroActual())}</div>
+    <h1>${t('tituloCrono')}</h1>
+    <div class="resumen">${
+      cronograma.length===0 ? t('sinSesionesPlan')
+      : cronograma.length + ' ' + (cronograma.length===1?t('sesionPlan'):t('sesionesPlan'))
+    }</div>
+    <div class="estado-guardado" id="estadoGuardado"></div>
+    ${htmlSelectorPerro()}
+    ${htmlPestanas()}
+  `;
+  conectarBotonConfig();
+  conectarSelectorPerro();
+  conectarPestanas();
+  document.getElementById('ayuda').textContent = t('ayudaCrono');
+  document.getElementById('btnAgregar').classList.add('oculto');
+
+  const lista = document.getElementById('lista');
+  lista.innerHTML = '';
+
+  const form = document.createElement('div');
+  form.className = 'tarjeta form-serie';
+
+  if(items.length === 0){
+    form.innerHTML = `
+      <span class="etiqueta">${t('agregarSesion')}</span>
+      <div class="sin-series">${t('primeroCrea')}</div>
+    `;
+  } else {
+    let opciones = '';
+    items.forEach(tk=>{
+      opciones += `<option value="${tk.id}">${escapar(tk.truco.trim() || t('sinNombre'))} (${t('estadio').toLowerCase()} ${tk.estadio}/5)</option>`;
+    });
+    const DIAS = t('dias');
+    form.innerHTML = `
+      <span class="etiqueta">${t('agregarSesion')}</span>
+
+      <span class="sub-etiqueta">${t('diaSemana')}</span>
+      <select class="selector" id="selDia">
+        ${DIAS.map((d,i)=>`<option value="${i}">${d}</option>`).join('')}
+      </select>
+
+      <span class="sub-etiqueta">${t('conductaPracticar')}</span>
+      <select class="selector" id="selTruco">${opciones}</select>
+
+      <span class="sub-etiqueta">${t('horaOpc')}</span>
+      <input class="input-hora" id="inputHora" type="time">
+
+      <span class="sub-etiqueta">${t('notaOpc')}</span>
+      <textarea class="obs" id="inputNota" rows="2" maxlength="200"
+        placeholder="${t('notaPH')}"></textarea>
+
+      <button class="btn-guardar-serie" id="btnAgregarCrono">${t('agregarAlCrono')}</button>
+    `;
+  }
+  lista.appendChild(form);
+
+  if(items.length > 0){
+    form.querySelector('#btnAgregarCrono').addEventListener('click', ()=>{
+      cronograma.push({
+        id: 'c' + Date.now() + Math.floor(Math.random()*1000),
+        dia: parseInt(form.querySelector('#selDia').value,10),
+        trucoId: form.querySelector('#selTruco').value,
+        hora: form.querySelector('#inputHora').value || '',
+        nota: form.querySelector('#inputNota').value.trim()
+      });
+      programarGuardado();
+      render();
+    });
+  }
+
+  const DIAS = t('dias');
+  for(let d=0; d<7; d++){
+    const delDia = cronograma
+      .filter(c=>c.dia===d)
+      .sort((x,y)=>{
+        if(!x.hora && !y.hora) return 0;
+        if(!x.hora) return 1;
+        if(!y.hora) return -1;
+        return x.hora.localeCompare(y.hora);
+      });
+
+    const card = document.createElement('div');
+    card.className = 'dia-card';
+    let html = `<div class="dia-nombre">${DIAS[d]}</div>`;
+    if(delDia.length === 0){
+      html += `<div class="dia-vacio">${t('sinSesionesDia')}</div>`;
+    }
+    card.innerHTML = html;
+
+    delDia.forEach(c=>{
+      const nombre = nombreTruco(c.trucoId);
+      const fila = document.createElement('div');
+      fila.className = 'item-crono';
+      fila.innerHTML = `
+        <div class="hora-crono ${c.hora?'':'sin-hora'}">${c.hora || t('sinHora')}</div>
+        <div class="cuerpo-crono">
+          <div class="truco-crono ${nombre===null?'eliminado':''}">${
+            nombre===null ? t('conductaEliminada') : escapar(nombre)
+          }</div>
+          ${c.nota ? `<div class="nota-crono">${escapar(c.nota)}</div>` : ''}
+        </div>
+        <button class="btn-borrar-serie">✕</button>
+      `;
+      conConfirmacion(fila.querySelector('.btn-borrar-serie'), '✕', t('quitarQ'), ()=>{
+        setCronograma(cronograma.filter(x=>x.id!==c.id));
+        programarGuardado();
+        render();
+      });
+      card.appendChild(fila);
+    });
+
+    lista.appendChild(card);
+  }
+
+  if(cronograma.length > 0){
+    const btnLimpiar = document.createElement('button');
+    btnLimpiar.className = 'btn-eliminar-truco';
+    btnLimpiar.textContent = t('limpiarCrono');
+    conConfirmacion(btnLimpiar, t('limpiarCrono'), t('confirmLimpiarCrono'), ()=>{
+      setCronograma([]);
+      programarGuardado();
+      render();
+    });
+    lista.appendChild(btnLimpiar);
+  }
+}
+
+/* ================= VETERINARIA ================= */
+function calcularEdad(fechaNac){
+  if(!fechaNac) return null;
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const nac = new Date(fechaNac + 'T00:00:00');
+  if(isNaN(nac.getTime()) || nac > hoy) return null;
+
+  let anios = hoy.getFullYear() - nac.getFullYear();
+  let meses = hoy.getMonth() - nac.getMonth();
+  if(hoy.getDate() < nac.getDate()) meses--;
+  if(meses < 0){ anios--; meses += 12; }
+
+  if(anios <= 0 && meses <= 0){
+    const dias = Math.floor((hoy - nac) / 86400000);
+    return dias + ' ' + (dias===1 ? t('dia') : t('diasU'));
+  }
+  if(anios <= 0){
+    return meses + ' ' + (meses===1 ? t('mes') : t('meses'));
+  }
+  let s = anios + ' ' + (anios===1 ? t('anio') : t('anios'));
+  if(meses > 0) s += ' ' + t('y') + ' ' + meses + ' ' + (meses===1 ? t('mes') : t('meses'));
+  return s;
+}
+
+function textoDias(d){
+  return d + ' ' + (d===1 ? t('dia') : t('diasU'));
+}
+
+function estadoRevacunacion(fechaProxima){
+  if(!fechaProxima) return {clase:'', texto:''};
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const prox = new Date(fechaProxima + 'T00:00:00');
+  const dias = Math.round((prox - hoy) / 86400000);
+  if(dias < 0) return {clase:'vencida', texto: t('vencidaHace', {d: textoDias(Math.abs(dias))})};
+  if(dias === 0) return {clase:'vencida', texto: t('revacHoy')};
+  if(dias <= 30) return {clase:'proxima', texto: t('faltanRevac', {d: textoDias(dias)})};
+  return {clase:'ok', texto: t('alDia', {d: textoDias(dias)})};
+}
+
+function renderVet(){
+  const p = datos.perros.find(x=>x.id===vetPerroId) || perroActual();
+  if(!p){ pestana = 'perros'; renderPerros(); return; }
+  const nombreP = p.nombre.trim() || t('perroSinNombre');
+  const cab = document.getElementById('cabecera');
+  cab.className = 'sin-pestanas';
+  cab.innerHTML = `
+    ${htmlBotonConfig()}
+    <button class="btn-volver" id="btnVolverPerros">${t('volverPerros')}</button>
+    <div class="eyebrow">${t('cuaderno')} · ${escapar(nombreP)}</div>
+    <h1>${t('tituloVet')}</h1>
+    <div class="resumen">${t('resumenVet', {n: escapar(nombreP)})}</div>
+    <div class="estado-guardado" id="estadoGuardado"></div>
+  `;
+  conectarBotonConfig();
+  document.getElementById('btnVolverPerros').addEventListener('click', ()=>{
+    pestana = 'perros'; vetPerroId = null; render();
+  });
+  document.getElementById('ayuda').textContent = t('ayudaVet');
+  document.getElementById('btnAgregar').classList.add('oculto');
+
+  const lista = document.getElementById('lista');
+  lista.innerHTML = '';
+
+  const v = p.vet;
+
+  const cardGral = document.createElement('div');
+  cardGral.className = 'tarjeta';
+  cardGral.innerHTML = `
+    <span class="etiqueta">${t('datosGenerales')}</span>
+
+    <span class="sub-etiqueta">${t('fechaNacimiento')}</span>
+    <input class="input-hora" id="vetNacimiento" type="date" value="${escapar(v.nacimiento || '')}">
+    <div class="estado-vac ok" id="edadCalculada" style="margin-top:-4px"></div>
+
+    <span class="sub-etiqueta">${t('raza')}</span>
+    <input class="input-texto" id="vetRaza" type="text" maxlength="60"
+           value="${escapar(v.raza || '')}" placeholder="${t('razaPH')}">
+
+    <span class="sub-etiqueta">${t('pesoKg')}</span>
+    <input class="input-texto" id="vetPeso" type="number" inputmode="decimal" min="0" step="0.1"
+           value="${escapar(v.peso)}" placeholder="${t('pesoPH')}">
+
+    <span class="sub-etiqueta">${t('castradoQ')}</span>
+    <select class="selector" id="vetCastrado">
+      <option value="" ${v.castrado===''?'selected':''}>${t('sinEspecificar')}</option>
+      <option value="si" ${v.castrado==='si'?'selected':''}>${t('si')}</option>
+      <option value="no" ${v.castrado==='no'?'selected':''}>${t('no')}</option>
+    </select>
+
+    <div id="zonaCelo"></div>
+  `;
+  lista.appendChild(cardGral);
+
+  function actualizarEdad(){
+    const div = cardGral.querySelector('#edadCalculada');
+    const edad = calcularEdad(v.nacimiento);
+    if(!v.nacimiento){
+      div.textContent = '';
+    } else if(edad === null){
+      div.className = 'estado-vac vencida';
+      div.textContent = t('fechaFutura');
+      div.style.marginTop = '-4px';
+    } else {
+      div.className = 'estado-vac ok';
+      div.textContent = t('edadPref') + ' ' + edad;
+      div.style.marginTop = '-4px';
+    }
+  }
+  actualizarEdad();
+
+  function renderZonaCelo(){
+    const zona = cardGral.querySelector('#zonaCelo');
+    if(p.sexo === 'hembra' && v.castrado === 'no'){
+      zona.innerHTML = `
+        <span class="sub-etiqueta">${t('ultimoCelo')}</span>
+        <input class="input-hora" id="vetCelo" type="date" value="${escapar(v.ultimoCelo)}">
+      `;
+      zona.querySelector('#vetCelo').addEventListener('input', e=>{
+        v.ultimoCelo = e.target.value; programarGuardado();
+      });
+    } else if(p.sexo === 'hembra' && v.castrado === ''){
+      zona.innerHTML = `<div class="nota-vet">${t('indicaCastrada')}</div>`;
+    } else if(p.sexo === ''){
+      zona.innerHTML = `<div class="nota-vet">${t('definiSexo', {n: escapar(nombreP)})}</div>`;
+    } else {
+      zona.innerHTML = '';
+    }
+  }
+  renderZonaCelo();
+
+  cardGral.querySelector('#vetNacimiento').addEventListener('input', e=>{
+    v.nacimiento = e.target.value;
+    actualizarEdad();
+    programarGuardado();
+  });
+  cardGral.querySelector('#vetRaza').addEventListener('input', e=>{
+    v.raza = e.target.value; programarGuardado();
+  });
+  cardGral.querySelector('#vetPeso').addEventListener('input', e=>{
+    v.peso = e.target.value; programarGuardado();
+  });
+  cardGral.querySelector('#vetCastrado').addEventListener('change', e=>{
+    v.castrado = e.target.value; programarGuardado(); renderZonaCelo();
+  });
+
+  function cardVacuna(titulo, campoUltima, campoProxima){
+    const card = document.createElement('div');
+    card.className = 'tarjeta';
+    const est = estadoRevacunacion(v[campoProxima]);
+    card.innerHTML = `
+      <span class="etiqueta">${titulo}</span>
+      <div class="fila-doble">
+        <div>
+          <span class="sub-etiqueta">${t('ultimaAplicacion')}</span>
+          <input class="input-hora" data-campo="${campoUltima}" type="date" value="${escapar(v[campoUltima])}">
+        </div>
+        <div>
+          <span class="sub-etiqueta">${t('proximaRevac')}</span>
+          <input class="input-hora" data-campo="${campoProxima}" type="date" value="${escapar(v[campoProxima])}">
+        </div>
+      </div>
+      <div class="estado-vac ${est.clase}" data-estado="${campoProxima}">${est.texto}</div>
+    `;
+    card.querySelectorAll('input[type=date]').forEach(inp=>{
+      inp.addEventListener('input', ()=>{
+        v[inp.dataset.campo] = inp.value;
+        const e2 = estadoRevacunacion(v[campoProxima]);
+        const div = card.querySelector('[data-estado]');
+        div.className = 'estado-vac ' + e2.clase;
+        div.textContent = e2.texto;
+        programarGuardado();
+      });
+    });
+    return card;
+  }
+
+  lista.appendChild(cardVacuna(t('antirrabica'), 'antirrabicaUltima', 'antirrabicaProxima'));
+  lista.appendChild(cardVacuna(t('sextuple'), 'sextupleUltima', 'sextupleProxima'));
+}
+
+/* ================= PERFILES DE PERRO ================= */
+function renderPerros(){
+  const cab = document.getElementById('cabecera');
+  cab.className = '';
+  cab.innerHTML = `
+    ${htmlBotonConfig()}
+    <div class="eyebrow">${t('cuaderno')}</div>
+    <h1>${t('tituloPerros')}</h1>
+    <div class="resumen">${datos.perros.length} ${datos.perros.length===1?t('perfil'):t('perfiles')} · ${t('enUso', {n: escapar(nombrePerroActual())})}</div>
+    <div class="estado-guardado" id="estadoGuardado"></div>
+    ${htmlPestanas()}
+  `;
+  conectarBotonConfig();
+  conectarPestanas();
+  document.getElementById('ayuda').textContent = t('ayudaPerros');
+  document.getElementById('btnAgregar').classList.add('oculto');
+
+  const lista = document.getElementById('lista');
+  lista.innerHTML = '';
+
+  const form = document.createElement('div');
+  form.className = 'tarjeta form-serie';
+  form.innerHTML = `
+    <span class="etiqueta">${t('agregarPerro')}</span>
+    <input class="input-texto" id="inputNuevoPerro" type="text" maxlength="40"
+           placeholder="${t('nombrePerroPH')}">
+    <button class="btn-guardar-serie" id="btnNuevoPerro">${t('crearPerfil')}</button>
+  `;
+  lista.appendChild(form);
+  form.querySelector('#btnNuevoPerro').addEventListener('click', ()=>{
+    const nombre = form.querySelector('#inputNuevoPerro').value.trim();
+    if(!nombre) return;
+    const p = nuevoPerro(nombre);
+    datos.perros.push(p);
+    datos.activo = p.id;
+    activarRefs();
+    programarGuardado();
+    render();
+  });
+
+  datos.perros.forEach(p=>{
+    const esActivo = (p.id === datos.activo);
+    const card = document.createElement('div');
+    card.className = 'perro-card' + (esActivo ? ' activo' : '');
+    card.innerHTML = `
+      <div class="perro-fila">
+        <input class="nombre-perro" type="text" value="${escapar(p.nombre)}"
+               placeholder="${t('perroSinNombre')}" maxlength="40">
+        ${esActivo
+          ? '<span class="badge-activo">' + t('enUsoBadge') + '</span>'
+          : '<button class="btn-usar">' + t('usar') + '</button>'}
+      </div>
+      <div class="perro-stats">${
+        p.trucos.length + ' ' + (p.trucos.length===1?t('conducta'):t('conductas'))
+        + ' · ' + p.cronograma.length + ' ' + (p.cronograma.length===1?t('sesionPlan'):t('sesionesPlan'))
+      }</div>
+      <span class="sub-etiqueta" style="margin-top:10px">${t('sexo')}</span>
+      <select class="selector sel-sexo" style="margin-bottom:0">
+        <option value="" ${p.sexo===''?'selected':''}>${t('sinEspecificar')}</option>
+        <option value="macho" ${p.sexo==='macho'?'selected':''}>${t('macho')}</option>
+        <option value="hembra" ${p.sexo==='hembra'?'selected':''}>${t('hembra')}</option>
+      </select>
+    `;
+
+    card.querySelector('.sel-sexo').addEventListener('change', e=>{
+      p.sexo = e.target.value;
+      programarGuardado();
+    });
+
+    const btnDatos = document.createElement('button');
+    btnDatos.className = 'btn-guardar-serie';
+    btnDatos.textContent = t('verDatos');
+    btnDatos.addEventListener('click', ()=>{
+      vetPerroId = p.id;
+      pestana = 'vet';
+      render();
+    });
+    card.appendChild(btnDatos);
+
+    card.querySelector('.nombre-perro').addEventListener('input', e=>{
+      p.nombre = e.target.value;
+      programarGuardado();
+    });
+
+    const btnUsar = card.querySelector('.btn-usar');
+    if(btnUsar){
+      btnUsar.addEventListener('click', ()=>{
+        datos.activo = p.id;
+        activarRefs();
+        vistaActual = null;
+        programarGuardado();
+        render();
+      });
+    }
+
+    if(datos.perros.length > 1){
+      const btnBorrar = document.createElement('button');
+      btnBorrar.className = 'btn-borrar-perro';
+      btnBorrar.textContent = t('eliminarPerfil');
+      conConfirmacion(btnBorrar, t('eliminarPerfil'), t('confirmEliminarPerfil'), ()=>{
+        datos.perros = datos.perros.filter(x=>x.id!==p.id);
+        if(datos.activo === p.id) datos.activo = datos.perros[0].id;
+        activarRefs();
+        programarGuardado();
+        render();
+      });
+      card.appendChild(btnBorrar);
+    }
+
+    lista.appendChild(card);
+  });
+
+  if(datos.perros.length === 1){
+    const nota = document.createElement('div');
+    nota.className = 'sin-series';
+    nota.textContent = t('unicoPerfil');
+    lista.appendChild(nota);
+  }
+}
+
+/* ================= CONFIGURACIÓN ================= */
+function generarExcel(){
+  if(typeof XLSX === 'undefined') return false;
+  try{
+    const wb = XLSX.utils.book_new();
+
+    /* Hoja 1: Perros + datos veterinarios */
+    const filasPerros = datos.perros.map(p=>{
+      const v = p.vet || {};
+      const fila = {};
+      fila[t('nombreCol')] = p.nombre;
+      fila[t('sexo')] = p.sexo ? t(p.sexo==='macho'?'macho':'hembra') : '';
+      fila[t('raza')] = v.raza || '';
+      fila[t('fechaNacimiento')] = v.nacimiento || '';
+      fila[t('pesoKg')] = v.peso || '';
+      fila[t('castradoQ')] = v.castrado ? t(v.castrado==='si'?'si':'no') : '';
+      fila[t('ultimoCelo')] = v.ultimoCelo || '';
+      fila[t('antirrabica') + ' — ' + t('ultimaAplicacion')] = v.antirrabicaUltima || '';
+      fila[t('antirrabica') + ' — ' + t('proximaRevac')] = v.antirrabicaProxima || '';
+      fila[t('sextuple') + ' — ' + t('ultimaAplicacion')] = v.sextupleUltima || '';
+      fila[t('sextuple') + ' — ' + t('proximaRevac')] = v.sextupleProxima || '';
+      return fila;
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(filasPerros), t('tabPerros'));
+
+    /* Hoja 2: Conductas con acumulados */
+    const filasConductas = [];
+    datos.perros.forEach(p=>{
+      (p.trucos||[]).forEach(tk=>{
+        let total=0, exitos=0;
+        (tk.series||[]).forEach(s=>{ total+=s.total; exitos+=s.exitos; });
+        const fila = {};
+        fila[t('perroCol')] = p.nombre;
+        fila[t('nombreCol')] = tk.truco;
+        fila[t('descripcionTruco')] = tk.descripcion || '';
+        fila[t('estadio')] = tk.estadio;
+        fila[t('series')] = (tk.series||[]).length;
+        fila[t('repeticiones')] = total;
+        fila[t('exitos')] = exitos;
+        fila[t('tasaExito')] = total>0 ? Math.round(100*exitos/total)+'%' : '';
+        filasConductas.push(fila);
+      });
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(filasConductas), t('tabConductas'));
+
+    /* Hoja 3: Series (una fila por serie) */
+    const filasSeries = [];
+    datos.perros.forEach(p=>{
+      (p.trucos||[]).forEach(tk=>{
+        const cant = (tk.series||[]).length;
+        (tk.series||[]).forEach((s, idx)=>{
+          const fila = {};
+          fila[t('perroCol')] = p.nombre;
+          fila[t('nombreCol')] = tk.truco;
+          fila[t('serie')] = cant - idx;
+          fila[t('fechaCol')] = s.fecha ? fechaLegible(s.fecha) : t('registroSinFecha');
+          fila[t('estadio')] = (typeof s.estadio === 'number') ? s.estadio : '';
+          fila[t('repeticiones')] = s.total;
+          fila[t('exitos')] = s.exitos;
+          fila[t('tasaExito')] = s.total>0 ? Math.round(100*s.exitos/s.total)+'%' : '';
+          fila[t('refuerzoCol')] = s.refuerzo || '';
+          fila[t('observacionCol')] = s.obs || '';
+          filasSeries.push(fila);
+        });
+      });
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(filasSeries), t('series'));
+
+    /* Hoja 4: Cronograma */
+    const DIAS = t('dias');
+    const filasCrono = [];
+    datos.perros.forEach(p=>{
+      (p.cronograma||[]).forEach(c=>{
+        const tk = (p.trucos||[]).find(x=>x.id===c.trucoId);
+        const fila = {};
+        fila[t('perroCol')] = p.nombre;
+        fila[t('diaCol')] = DIAS[c.dia] || '';
+        fila[t('horaCol')] = c.hora || '';
+        fila[t('conducta')] = tk ? tk.truco : t('conductaEliminada');
+        fila[t('notaCol')] = c.nota || '';
+        filasCrono.push(fila);
+      });
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(filasCrono), t('tabCrono'));
+
+    XLSX.writeFile(wb, 'adiestramiento.xlsx');
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+
+function abrirConfig(){
+  cerrarConfig();
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay-config';
+  overlay.id = 'overlayConfig';
+
+  const coloresTemas = {
+    verde:'#2F5233', oceano:'#1D4E63', terracota:'#9A4A34', lavanda:'#4A3B78', oscuro:'#171B17'
+  };
+  const nombresTemas = {
+    verde:t('temaVerde'), oceano:t('temaOceano'), terracota:t('temaTerracota'),
+    lavanda:t('temaLavanda'), oscuro:t('temaOscuro')
+  };
+
+  let swatches = '';
+  Object.keys(TEMAS).forEach(k=>{
+    swatches += `
+      <button class="swatch ${cfg.tema===k?'activo':''}" data-tema="${k}">
+        <span class="bola" style="background:${coloresTemas[k]}"></span>
+        ${nombresTemas[k]}
+      </button>`;
+  });
+
+  overlay.innerHTML = `
+    <div class="panel-config">
+      <div class="config-cab">
+        <div class="config-titulo">${t('config')}</div>
+        <button class="btn-cerrar" id="btnCerrarConfig">✕</button>
+      </div>
+
+      <div class="tarjeta">
+        <span class="etiqueta">${t('idioma')}</span>
+        <select class="selector" id="selIdioma" style="margin-bottom:0">
+          <option value="es" ${cfg.idioma==='es'?'selected':''}>Español</option>
+          <option value="en" ${cfg.idioma==='en'?'selected':''}>English</option>
+          <option value="pt" ${cfg.idioma==='pt'?'selected':''}>Português</option>
+        </select>
+      </div>
+
+      <div class="tarjeta">
+        <span class="etiqueta">${t('colores')}</span>
+        <div class="swatches">${swatches}</div>
+      </div>
+
+      <div class="tarjeta">
+        <span class="etiqueta">${t('exportarTitulo')}</span>
+        <div class="nota-vet" style="margin-bottom:10px">${t('excelTexto')}</div>
+        <button class="btn-guardar-serie" id="btnExcel" style="margin-top:0">${t('exportarExcel')}</button>
+        <div class="aviso-config" id="avisoExcel"></div>
+
+        <span class="sub-etiqueta" style="margin-top:14px">${t('respaldoTexto')}</span>
+        <textarea class="area-datos" id="areaExportar" readonly></textarea>
+        <button class="btn-guardar-serie" id="btnCopiar" style="margin-top:8px">${t('copiar')}</button>
+        <div class="aviso-config" id="avisoExportar"></div>
+      </div>
+
+      <div class="tarjeta">
+        <span class="etiqueta">${t('importarTitulo')}</span>
+        <textarea class="area-datos" id="areaImportar" placeholder="${t('importarPH')}"></textarea>
+        <button class="btn-guardar-serie" id="btnImportar" style="margin-top:8px">${t('importarBtn')}</button>
+        <div class="aviso-config" id="avisoImportar"></div>
+      </div>
+
+      <button class="btn-eliminar-truco" id="btnBorrarTodo">${t('borrarTodo')}</button>
+      <div class="aviso-config" id="avisoBorrado"></div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener('click', e=>{
+    if(e.target === overlay) cerrarConfig();
+  });
+  overlay.querySelector('#btnCerrarConfig').addEventListener('click', cerrarConfig);
+
+  overlay.querySelector('#selIdioma').addEventListener('change', e=>{
+    cfg.idioma = e.target.value;
+    programarGuardadoConfig();
+    render();
+    abrirConfig(); /* redibuja el panel en el nuevo idioma */
+  });
+
+  overlay.querySelectorAll('.swatch').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      cfg.tema = b.dataset.tema;
+      aplicarTema();
+      programarGuardadoConfig();
+      overlay.querySelectorAll('.swatch').forEach(x=>x.classList.toggle('activo', x===b));
+    });
+  });
+
+  const areaExp = overlay.querySelector('#areaExportar');
+  areaExp.value = JSON.stringify(datos);
+  const avisoExp = overlay.querySelector('#avisoExportar');
+
+  overlay.querySelector('#btnCopiar').addEventListener('click', async ()=>{
+    try{
+      await navigator.clipboard.writeText(areaExp.value);
+      avisoExp.className = 'aviso-config ok';
+      avisoExp.textContent = t('copiado');
+    }catch(e){
+      areaExp.focus(); areaExp.select();
+      avisoExp.className = 'aviso-config err';
+      avisoExp.textContent = t('copiarManual');
+    }
+  });
+
+  const avisoExcel = overlay.querySelector('#avisoExcel');
+  overlay.querySelector('#btnExcel').addEventListener('click', ()=>{
+    const ok = generarExcel();
+    avisoExcel.className = 'aviso-config ' + (ok ? 'ok' : 'err');
+    avisoExcel.textContent = ok ? t('excelOk') : t('excelErr');
+  });
+
+  const avisoImp = overlay.querySelector('#avisoImportar');
+  overlay.querySelector('#btnImportar').addEventListener('click', ()=>{
+    const texto = overlay.querySelector('#areaImportar').value.trim();
+    try{
+      const parsed = JSON.parse(texto);
+      if(!parsed || !Array.isArray(parsed.perros)) throw new Error('formato');
+      datos = parsed;
+      sanearDatos();
+      activarRefs();
+      vistaActual = null;
+      programarGuardado();
+      render();
+      avisoImp.className = 'aviso-config ok';
+      avisoImp.textContent = t('importOk');
+      areaExp.value = JSON.stringify(datos);
+    }catch(e){
+      avisoImp.className = 'aviso-config err';
+      avisoImp.textContent = t('importErr');
+    }
+  });
+
+  const avisoBorrado = overlay.querySelector('#avisoBorrado');
+  conConfirmacion(overlay.querySelector('#btnBorrarTodo'), t('borrarTodo'), t('confirmBorrarTodo'), ()=>{
+    const p = nuevoPerro(t('miPerro'));
+    datos = { activo: p.id, perros: [p] };
+    activarRefs();
+    vistaActual = null;
+    pestana = 'grilla';
+    programarGuardado();
+    render();
+    avisoBorrado.className = 'aviso-config ok';
+    avisoBorrado.textContent = t('borradoOk');
+    areaExp.value = JSON.stringify(datos);
+    const btn = overlay.querySelector('#btnBorrarTodo');
+    btn.classList.remove('confirmando');
+    btn.innerHTML = t('borrarTodo');
+  });
+}
+
+function cerrarConfig(){
+  const o = document.getElementById('overlayConfig');
+  if(o) o.remove();
+}
+
+/* ================= RENDER GENERAL ================= */
+function render(){
+  if(pestana === 'crono'){ renderCronograma(); return; }
+  if(pestana === 'vet'){ renderVet(); return; }
+  if(pestana === 'perros'){ renderPerros(); return; }
+  if(vistaActual){
+    const item = items.find(i=>i.id===vistaActual);
+    if(item){ renderDetalle(item); return; }
+    vistaActual = null;
+  }
+  renderLista();
+}
+
+document.getElementById('btnAgregar').addEventListener('click', ()=>{
+  const nuevo = nuevoItem();
+  items.unshift(nuevo);
+  vistaActual = nuevo.id;
+  render(); programarGuardado();
+  const input = document.querySelector('.nombre-truco');
+  if(input) input.focus();
+});
+
+cargar();
+
+/* ===== Service worker: permite abrir la app sin conexión ===== */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{ /* sin SW la app igual funciona */ });
+  });
+}
+
+/* Aviso si el navegador bloquea el guardado (modo privado, permisos) */
+if(!almacenamientoOk){
+  window.addEventListener('load', ()=>{
+    const aviso = document.createElement('div');
+    aviso.style.cssText = 'position:fixed;left:10px;right:10px;bottom:76px;z-index:60;'+
+      'background:#B23A3A;color:#fff;padding:12px 14px;border-radius:12px;'+
+      'font-size:13px;line-height:1.4;box-shadow:0 6px 18px rgba(0,0,0,.3)';
+    aviso.textContent = 'Atención: este navegador no permite guardar datos (modo privado o permisos bloqueados). '+
+      'Lo que cargues se perderá al cerrar. Tocá para ocultar.';
+    aviso.addEventListener('click', ()=>aviso.remove());
+    document.body.appendChild(aviso);
+  });
+}
+</script>
+</body>
+</html>
