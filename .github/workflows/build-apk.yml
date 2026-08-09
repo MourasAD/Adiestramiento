@@ -1,0 +1,293 @@
+name: Construir APK
+
+# Se ejecuta al subir cualquier cambio y tambien a mano
+# desde la pestaña Actions con el boton "Run workflow".
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  construir:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Buscar el archivo de la app
+        id: buscar
+        run: |
+          RUTA=$(find . -name "*.html" -not -path "./proyecto/*" | head -1)
+          if [ -z "$RUTA" ]; then
+            echo "ERROR: no se encontro ningun archivo .html en el repositorio."
+            echo "Subi el archivo index.html y volve a intentar."
+            exit 1
+          fi
+          echo "App encontrada en: $RUTA"
+          echo "ruta=$RUTA" >> "$GITHUB_OUTPUT"
+
+      - name: Armar el proyecto Android
+        env:
+          RUTA_HTML: ${{ steps.buscar.outputs.ruta }}
+        run: |
+          mkdir -p proyecto/app/src/main/java/com/adiestramiento/grilla
+          mkdir -p proyecto/app/src/main/res/values
+          mkdir -p proyecto/app/src/main/res/drawable
+          mkdir -p proyecto/app/src/main/res/mipmap-anydpi-v26
+          mkdir -p proyecto/app/src/main/assets
+
+          cp "$RUTA_HTML" proyecto/app/src/main/assets/index.html
+          echo "App copiada: $(wc -c < proyecto/app/src/main/assets/index.html) bytes"
+
+          cat > proyecto/settings.gradle <<'FIN'
+          pluginManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
+          }
+          dependencyResolutionManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+          }
+          rootProject.name = "GrillaAdiestramiento"
+          include ':app'
+          FIN
+
+          cat > proyecto/build.gradle <<'FIN'
+          plugins {
+              id 'com.android.application' version '8.5.2' apply false
+          }
+          FIN
+
+          cat > proyecto/gradle.properties <<'FIN'
+          android.useAndroidX=true
+          android.nonTransitiveRClass=true
+          org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+          FIN
+
+          cat > proyecto/app/build.gradle <<'FIN'
+          plugins {
+              id 'com.android.application'
+          }
+
+          android {
+              namespace 'com.adiestramiento.grilla'
+              compileSdk 34
+
+              defaultConfig {
+                  applicationId "com.adiestramiento.grilla"
+                  minSdk 26
+                  targetSdk 34
+                  versionCode 1
+                  versionName "1.0"
+              }
+
+              buildTypes {
+                  release {
+                      minifyEnabled false
+                  }
+              }
+
+              compileOptions {
+                  sourceCompatibility JavaVersion.VERSION_17
+                  targetCompatibility JavaVersion.VERSION_17
+              }
+          }
+
+          dependencies {
+              implementation 'androidx.webkit:webkit:1.11.0'
+          }
+          FIN
+
+          cat > proyecto/app/src/main/AndroidManifest.xml <<'FIN'
+          <?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <uses-permission android:name="android.permission.INTERNET" />
+              <application
+                  android:allowBackup="true"
+                  android:hardwareAccelerated="true"
+                  android:icon="@mipmap/ic_launcher"
+                  android:label="@string/app_name"
+                  android:theme="@style/AppTheme">
+                  <activity
+                      android:name=".MainActivity"
+                      android:exported="true"
+                      android:configChanges="orientation|screenSize|keyboardHidden|screenLayout"
+                      android:windowSoftInputMode="adjustResize">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
+                      </intent-filter>
+                  </activity>
+              </application>
+          </manifest>
+          FIN
+
+          cat > proyecto/app/src/main/res/values/strings.xml <<'FIN'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+              <string name="app_name">Adiestramiento</string>
+          </resources>
+          FIN
+
+          cat > proyecto/app/src/main/res/values/colors.xml <<'FIN'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+              <color name="ic_launcher_background">#2F5233</color>
+          </resources>
+          FIN
+
+          cat > proyecto/app/src/main/res/values/styles.xml <<'FIN'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+              <style name="AppTheme" parent="@android:style/Theme.Material.Light.NoActionBar">
+                  <item name="android:statusBarColor">#2F5233</item>
+                  <item name="android:windowBackground">#EEF1EA</item>
+              </style>
+          </resources>
+          FIN
+
+          cat > proyecto/app/src/main/res/drawable/ic_launcher_foreground.xml <<'FIN'
+          <?xml version="1.0" encoding="utf-8"?>
+          <vector xmlns:android="http://schemas.android.com/apk/res/android"
+              android:width="108dp"
+              android:height="108dp"
+              android:viewportWidth="108"
+              android:viewportHeight="108">
+              <path
+                  android:fillColor="#E8A33D"
+                  android:pathData="M42.00,63.60 C42.00,58.30 47.37,54.00 54.00,54.00 C60.63,54.00 66.00,58.30 66.00,63.60 C66.00,68.90 60.63,73.20 54.00,73.20 C47.37,73.20 42.00,68.90 42.00,63.60 Z" />
+              <path
+                  android:fillColor="#E8A33D"
+                  android:pathData="M31.68,50.16 C31.68,47.38 33.94,45.12 36.72,45.12 C39.50,45.12 41.76,47.38 41.76,50.16 C41.76,52.94 39.50,55.20 36.72,55.20 C33.94,55.20 31.68,52.94 31.68,50.16 Z" />
+              <path
+                  android:fillColor="#E8A33D"
+                  android:pathData="M41.76,39.60 C41.76,36.55 44.23,34.08 47.28,34.08 C50.33,34.08 52.80,36.55 52.80,39.60 C52.80,42.65 50.33,45.12 47.28,45.12 C44.23,45.12 41.76,42.65 41.76,39.60 Z" />
+              <path
+                  android:fillColor="#E8A33D"
+                  android:pathData="M55.20,39.60 C55.20,36.55 57.67,34.08 60.72,34.08 C63.77,34.08 66.24,36.55 66.24,39.60 C66.24,42.65 63.77,45.12 60.72,45.12 C57.67,45.12 55.20,42.65 55.20,39.60 Z" />
+              <path
+                  android:fillColor="#E8A33D"
+                  android:pathData="M66.24,50.16 C66.24,47.38 68.50,45.12 71.28,45.12 C74.06,45.12 76.32,47.38 76.32,50.16 C76.32,52.94 74.06,55.20 71.28,55.20 C68.50,55.20 66.24,52.94 66.24,50.16 Z" />
+          </vector>
+          FIN
+
+          cat > proyecto/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml <<'FIN'
+          <?xml version="1.0" encoding="utf-8"?>
+          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+              <background android:drawable="@color/ic_launcher_background" />
+              <foreground android:drawable="@drawable/ic_launcher_foreground" />
+          </adaptive-icon>
+          FIN
+
+          cat > proyecto/app/src/main/java/com/adiestramiento/grilla/MainActivity.java <<'FIN'
+          package com.adiestramiento.grilla;
+
+          import android.app.Activity;
+          import android.os.Bundle;
+          import android.view.KeyEvent;
+          import android.webkit.WebResourceRequest;
+          import android.webkit.WebResourceResponse;
+          import android.webkit.WebSettings;
+          import android.webkit.WebView;
+          import android.webkit.WebViewClient;
+
+          import androidx.webkit.WebViewAssetLoader;
+
+          public class MainActivity extends Activity {
+
+              private WebView web;
+
+              @Override
+              protected void onCreate(Bundle estado) {
+                  super.onCreate(estado);
+
+                  final WebViewAssetLoader cargador = new WebViewAssetLoader.Builder()
+                          .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
+                          .build();
+
+                  web = new WebView(this);
+
+                  WebSettings ajustes = web.getSettings();
+                  ajustes.setJavaScriptEnabled(true);
+                  ajustes.setDomStorageEnabled(true);
+                  ajustes.setDatabaseEnabled(true);
+                  ajustes.setAllowFileAccess(false);
+                  ajustes.setAllowContentAccess(false);
+                  ajustes.setSupportZoom(false);
+
+                  web.setWebViewClient(new WebViewClient() {
+                      @Override
+                      public WebResourceResponse shouldInterceptRequest(WebView vista, WebResourceRequest pedido) {
+                          return cargador.shouldInterceptRequest(pedido.getUrl());
+                      }
+                  });
+
+                  setContentView(web);
+
+                  if (estado != null) {
+                      web.restoreState(estado);
+                  } else {
+                      web.loadUrl("https://appassets.androidplatform.net/assets/index.html");
+                  }
+              }
+
+              @Override
+              protected void onSaveInstanceState(Bundle estado) {
+                  super.onSaveInstanceState(estado);
+                  web.saveState(estado);
+              }
+
+              @Override
+              public boolean onKeyDown(int tecla, KeyEvent evento) {
+                  if (tecla == KeyEvent.KEYCODE_BACK && web != null && web.canGoBack()) {
+                      web.goBack();
+                      return true;
+                  }
+                  return super.onKeyDown(tecla, evento);
+              }
+          }
+          FIN
+
+          echo "Proyecto Android generado:"
+          find proyecto -type f | sort
+
+      - name: Preparar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Preparar Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Compilar el APK
+        working-directory: proyecto
+        run: gradle assembleDebug --no-daemon --stacktrace
+
+      - name: Preparar el archivo para descargar
+        run: cp proyecto/app/build/outputs/apk/debug/app-debug.apk adiestramiento.apk
+
+      - name: Guardar copia como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: adiestramiento-apk
+          path: adiestramiento.apk
+
+      - name: Publicar en Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete apk --yes --cleanup-tag || true
+          gh release create apk adiestramiento.apk \
+            --title "APK de la app de adiestramiento" \
+            --notes "Descarga adiestramiento.apk desde el celular y tocalo para instalar."
