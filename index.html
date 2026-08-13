@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Adiestramiento">
-<meta name="description" content="Registro de adiestramiento canino: conductas, series, cronograma y datos del perro.">
+<meta name="description" content="Registro de adiestramiento canino: conductas, series, objetivos y datos del perro.">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -96,10 +96,10 @@
   .sel-perro:focus{outline:none;border-color:var(--premio)}
   .sel-perro option{color:#1E2420;background:#fff}
 
-  .pestanas{display:flex;gap:6px;margin-top:14px}
+  .pestanas{display:flex;gap:5px;margin-top:14px}
   .pestana{
-    flex:1;border:none;font-family:inherit;font-size:13.5px;font-weight:700;
-    padding:12px 4px;cursor:pointer;
+    flex:1;border:none;font-family:inherit;font-size:12px;font-weight:700;
+    padding:12px 2px;cursor:pointer;
     background:rgba(255,255,255,.10);color:var(--head-sub);
     border-radius:12px 12px 0 0;
   }
@@ -316,30 +316,6 @@
   }
   .selector:focus, .input-hora:focus, .input-texto:focus{outline:none;border-color:var(--premio)}
   .input-texto::placeholder{color:var(--ph)}
-  .dia-card{
-    background:var(--tarjeta);border:1px solid var(--linea);border-radius:var(--radio);
-    padding:12px 14px;margin-bottom:12px;
-  }
-  .dia-nombre{
-    font-family:'Bricolage Grotesque',sans-serif;font-size:16px;font-weight:800;
-    color:var(--campo);
-  }
-  body.tema-oscuro .dia-nombre{color:var(--premio)}
-  .dia-vacio{font-size:13px;color:var(--ph);font-style:italic;margin-top:6px}
-  .item-crono{
-    display:flex;align-items:flex-start;gap:10px;
-    padding:10px 0;border-top:1px solid var(--linea);margin-top:8px;
-  }
-  .item-crono:first-of-type{border-top:none}
-  .hora-crono{
-    font-variant-numeric:tabular-nums;font-weight:700;font-size:14px;
-    color:var(--premio);min-width:52px;padding-top:1px;
-  }
-  .hora-crono.sin-hora{color:var(--ph);font-weight:600;font-size:12.5px}
-  .cuerpo-crono{flex:1;min-width:0}
-  .truco-crono{font-weight:700;font-size:15px}
-  .truco-crono.eliminado{color:var(--peligro);font-weight:600;font-style:italic}
-  .nota-crono{font-size:13px;color:var(--tinta-suave);margin-top:2px;line-height:1.4;white-space:pre-wrap}
 
   .perro-card{
     background:var(--tarjeta);border:1px solid var(--linea);border-radius:var(--radio);
@@ -414,6 +390,79 @@
   .aviso-config.ok{color:var(--exito)}
   .aviso-config.err{color:var(--peligro)}
 
+  /* ---- Carpetas ---- */
+  .carpeta-cab{
+    display:flex;align-items:center;gap:8px;
+    margin:16px 2px 8px;padding:8px 10px;
+    background:var(--panel);border-radius:12px;cursor:pointer;
+  }
+  .carpeta-cab:first-child{margin-top:4px}
+  .carpeta-flecha{
+    font-size:12px;color:var(--tinta-suave);width:14px;flex-shrink:0;
+    transition:transform .15s;
+  }
+  .carpeta-cab.cerrada .carpeta-flecha{transform:rotate(-90deg)}
+  .carpeta-nombre{
+    flex:1;font-family:'Bricolage Grotesque',sans-serif;
+    font-size:15px;font-weight:800;color:var(--campo);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  body.tema-oscuro .carpeta-nombre{color:var(--premio)}
+  .carpeta-conteo{
+    font-size:11.5px;font-weight:700;color:var(--tinta-suave);
+    background:var(--pista);border-radius:999px;padding:3px 9px;flex-shrink:0;
+  }
+  .btn-borrar-carpeta{
+    border:none;background:transparent;color:var(--ph);font-size:14px;
+    padding:4px 6px;border-radius:8px;cursor:pointer;flex-shrink:0;font-family:inherit;
+  }
+  .carpeta-vacia{
+    font-size:13px;color:var(--ph);font-style:italic;
+    padding:4px 12px 12px;
+  }
+  .fila-nueva-carpeta{display:flex;gap:8px;align-items:flex-start}
+  .fila-nueva-carpeta .input-texto{flex:1}
+  .btn-mini{
+    border:none;background:var(--campo);color:#fff;border-radius:12px;
+    padding:12px 16px;font-family:inherit;font-size:14px;font-weight:700;
+    cursor:pointer;flex-shrink:0;
+  }
+  .btn-mini:active{background:var(--campo-osc)}
+
+  /* ---- Objetivos ---- */
+  .objetivo{
+    background:var(--tarjeta);border:1px solid var(--linea);border-radius:var(--radio);
+    padding:14px;margin-bottom:12px;
+  }
+  .objetivo.cumplido{border:2px solid var(--exito)}
+  .objetivo.vencido{border:2px solid var(--peligro)}
+  .obj-fallido{margin-top:4px;font-size:13px;font-weight:700;color:var(--peligro)}
+  .obj-cab{display:flex;align-items:flex-start;gap:8px}
+  .obj-titulo{
+    flex:1;font-family:'Bricolage Grotesque',sans-serif;
+    font-size:16px;font-weight:700;line-height:1.25;
+  }
+  .obj-alcance{font-size:12.5px;color:var(--tinta-suave);margin-top:2px}
+  .obj-cifras{
+    display:flex;align-items:baseline;gap:6px;margin-top:10px;
+    font-variant-numeric:tabular-nums;
+  }
+  .obj-num{
+    font-family:'Bricolage Grotesque',sans-serif;
+    font-size:22px;font-weight:800;color:var(--exito);
+  }
+  .obj-meta{font-size:14px;color:var(--tinta-suave);font-weight:600}
+  .obj-pct{margin-left:auto;font-size:13px;font-weight:700;color:var(--tinta-suave)}
+  .obj-listo{
+    margin-top:8px;font-size:13px;font-weight:700;color:var(--exito);
+  }
+  .btn-hecho{
+    width:100%;margin-top:10px;border:1.5px solid var(--linea);
+    background:var(--insumo);color:var(--tinta);border-radius:12px;padding:11px;
+    font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;
+  }
+  .btn-hecho.activo{background:var(--exito);color:#fff;border-color:var(--exito)}
+
   .btn-agregar{
     position:fixed;left:50%;transform:translateX(-50%);bottom:18px;
     background:var(--campo);color:#fff;border:none;border-radius:999px;
@@ -451,7 +500,6 @@
 
 <script>
 const CLAVE_VIEJA = 'grilla-adiestramiento-v1';
-const CLAVE_CRONO_VIEJA = 'grilla-cronograma-v1';
 const CLAVE_PERROS = 'grilla-perros-v1';
 const CLAVE_CONFIG = 'grilla-config-v1';
 
@@ -492,7 +540,6 @@ const store = {
 let datos = { activo: null, perros: [] };
 let cfg = { idioma: 'es', tema: 'verde' };
 let items = [];
-let cronograma = [];
 let pestana = 'grilla';
 let vistaActual = null;
 let vetPerroId = null; /* perro cuya ficha se está viendo, elegido desde la pestaña Perros */
@@ -574,12 +621,12 @@ es:{
   dia:'día', diasU:'días', anio:'año', anios:'años', mes:'mes', meses:'meses', y:'y',
   tituloPerros:'Perfiles de perro', perfil:'perfil', perfiles:'perfiles',
   enUso:'en uso: {n}', enUsoBadge:'En uso',
-  ayudaPerros:'Cada perro tiene su propia grilla, cronograma y planilla veterinaria.',
+  ayudaPerros:'Cada perro tiene sus propias conductas, objetivos y ficha de datos.',
   agregarPerro:'Agregar perro', nombrePerroPH:'Nombre del perro (ej.: Rocco)',
   crearPerfil:'Crear perfil', conducta:'conducta', conductas:'conductas',
   usar:'Usar', sexo:'Sexo', macho:'Macho', hembra:'Hembra',
   eliminarPerfil:'Eliminar este perfil y todos sus datos',
-  confirmEliminarPerfil:'Tocá de nuevo para confirmar (se borra su grilla y cronograma)',
+  confirmEliminarPerfil:'Tocá de nuevo para confirmar (se borran sus conductas y objetivos)',
   unicoPerfil:'El único perfil existente no se puede eliminar: siempre tiene que haber al menos uno.',
   perroSinNombre:'Perro sin nombre', miPerro:'Mi perro',
   config:'Configuración', idioma:'Idioma', colores:'Colores',
@@ -594,15 +641,52 @@ es:{
   importOk:'Datos importados correctamente ✓',
   importErr:'El texto pegado no es un respaldo válido.',
   borrarTodo:'Borrar todos los datos',
-  confirmBorrarTodo:'Tocá de nuevo para confirmar (se borra TODO: perros, conductas, series, cronogramas y planillas)',
+  confirmBorrarTodo:'Tocá de nuevo para confirmar (se borra TODO: perros, conductas, series, objetivos y fichas)',
   borradoOk:'Datos borrados. La app quedó como nueva.',
   nombreCol:'Nombre', perroCol:'Perro', fechaCol:'Fecha', diaCol:'Día', horaCol:'Hora',
   observacionCol:'Observación', notaCol:'Nota',
   exportarExcel:'Descargar Excel (.xlsx)',
-  excelTexto:'El Excel arma una hoja por sección (perros, conductas, series y cronograma), fácil de leer e imprimir.',
+  excelTexto:'El Excel arma una hoja por sección (perros, conductas, series y objetivos), fácil de leer e imprimir.',
   respaldoTexto:'Respaldo de texto (necesario para importar)',
   excelErr:'No se pudo generar el Excel en este entorno. Usá el respaldo de texto.',
-  excelOk:'Excel generado ✓'
+  excelOk:'Excel generado ✓',
+  carpeta:'Carpeta', sinCarpeta:'Sin carpeta', nuevaCarpeta:'+ Nueva carpeta…',
+  nombreCarpetaPH:'Nombre de la carpeta (ej.: obediencia básica)',
+  crearCarpeta:'Crear', carpetaVacia:'Esta carpeta está vacía',
+  quitarCarpeta:'¿Quitar carpeta? Las conductas pasan a «Sin carpeta»',
+  tabObjetivos:'Objetivos', tituloObjetivos:'Objetivos',
+  objetivoU:'objetivo', objetivosU:'objetivos',
+  ayudaObjetivos:'Cada objetivo tiene un plazo. Los de estadio se actualizan solos; los de tiempo y distancia los cargás vos.',
+  nuevoObjetivo:'Nuevo objetivo', tipoObjetivo:'¿Qué querés lograr?',
+  tipoEstadio:'Progresar de estadio', tipoTiempo:'Incrementar la duración',
+  tipoDistancia:'Incrementar la distancia', tipoDistraccion:'Incrementar la distracción',
+  tipoLibre:'Objetivo libre (lo marco a mano)',
+  nivelDistraccion:'Nivel de distracción', nivel:'Nivel',
+  deNivelA:'De nivel {a} a nivel {b}',
+  nivelesDistraccion:[
+    'Sin distracciones',
+    'Distracciones leves',
+    'Distracciones moderadas',
+    'Distracciones altas',
+    'Distracciones máximas'
+  ],
+  conductaObj:'Conducta', conductaOpcional:'Conducta (opcional)',
+  sinConducta:'Sin conducta asociada', metaEstadio:'Estadio a alcanzar',
+  puntoPartida:'Punto de partida', metaAlcanzar:'Meta a alcanzar',
+  marcaActual:'Marca actual', actualizarMarca:'Actualizá la marca cuando lo logre',
+  unidadTiempo:'Unidad', segundos:'segundos', minutos:'minutos',
+  unidadDistancia:'Unidad', metros:'metros', pasos:'pasos',
+  plazo:'Plazo', plazo3d:'3 días', plazo1s:'1 semana', plazo2s:'2 semanas', plazo1m:'1 mes',
+  plazoFecha:'Fecha límite',
+  faltanDiasObj:'Faltan {d}', venceHoyObj:'Vence hoy', vencidoHaceObj:'Vencido hace {d}',
+  objetivoLibrePH:'Ej.: practicar en la plaza con distracciones',
+  crearObjetivo:'Crear objetivo', sinObjetivos:'Todavía no cargaste objetivos.',
+  objetivoCumplido:'¡Cumplido!', noLogrado:'No se logró en el plazo',
+  marcarHecho:'Marcar como hecho', marcadoHecho:'Hecho ✓ (tocá para desmarcar)',
+  primeroCreaObj:'Primero creá al menos una conducta para poder ponerle objetivos.',
+  deEstadioA:'De estadio {a} a estadio {b}',
+  objetivoCol:'Objetivo', metaCol:'Meta', progresoCol:'Progreso', plazoCol:'Plazo',
+  estadoCol:'Estado', enCurso:'En curso'
 },
 en:{
   tabConductas:'Behaviors', tabCrono:'Schedule', tabVet:'Veterinary', tabPerros:'Dogs',
@@ -677,12 +761,12 @@ en:{
   dia:'day', diasU:'days', anio:'year', anios:'years', mes:'month', meses:'months', y:'and',
   tituloPerros:'Dog profiles', perfil:'profile', perfiles:'profiles',
   enUso:'in use: {n}', enUsoBadge:'In use',
-  ayudaPerros:'Each dog has its own grid, schedule and veterinary sheet.',
+  ayudaPerros:'Each dog has its own behaviors, goals and data sheet.',
   agregarPerro:'Add dog', nombrePerroPH:'Dog\u2019s name (e.g.: Rocco)',
   crearPerfil:'Create profile', conducta:'behavior', conductas:'behaviors',
   usar:'Use', sexo:'Sex', macho:'Male', hembra:'Female',
   eliminarPerfil:'Delete this profile and all its data',
-  confirmEliminarPerfil:'Tap again to confirm (its grid and schedule will be deleted)',
+  confirmEliminarPerfil:'Tap again to confirm (its behaviors and goals will be deleted)',
   unicoPerfil:'The only existing profile cannot be deleted: there must always be at least one.',
   perroSinNombre:'Unnamed dog', miPerro:'My dog',
   config:'Settings', idioma:'Language', colores:'Colors',
@@ -697,15 +781,52 @@ en:{
   importOk:'Data imported successfully ✓',
   importErr:'The pasted text is not a valid backup.',
   borrarTodo:'Delete all data',
-  confirmBorrarTodo:'Tap again to confirm (EVERYTHING will be deleted: dogs, behaviors, sets, schedules and sheets)',
+  confirmBorrarTodo:'Tap again to confirm (EVERYTHING will be deleted: dogs, behaviors, sets, goals and sheets)',
   borradoOk:'Data deleted. The app is like new.',
   nombreCol:'Name', perroCol:'Dog', fechaCol:'Date', diaCol:'Day', horaCol:'Time',
   observacionCol:'Notes', notaCol:'Note',
   exportarExcel:'Download Excel (.xlsx)',
-  excelTexto:'The Excel file has one sheet per section (dogs, behaviors, sets and schedule), easy to read and print.',
+  excelTexto:'The Excel file has one sheet per section (dogs, behaviors, sets and goals), easy to read and print.',
   respaldoTexto:'Text backup (needed for importing)',
   excelErr:'Could not generate the Excel file in this environment. Use the text backup.',
-  excelOk:'Excel generated ✓'
+  excelOk:'Excel generated ✓',
+  carpeta:'Folder', sinCarpeta:'No folder', nuevaCarpeta:'+ New folder…',
+  nombreCarpetaPH:'Folder name (e.g.: basic obedience)',
+  crearCarpeta:'Create', carpetaVacia:'This folder is empty',
+  quitarCarpeta:'Remove folder? Its behaviors move to "No folder"',
+  tabObjetivos:'Goals', tituloObjetivos:'Goals',
+  objetivoU:'goal', objetivosU:'goals',
+  ayudaObjetivos:'Every goal has a deadline. Stage goals update automatically; time and distance ones you log yourself.',
+  nuevoObjetivo:'New goal', tipoObjetivo:'What do you want to achieve?',
+  tipoEstadio:'Progress a stage', tipoTiempo:'Increase duration',
+  tipoDistancia:'Increase distance', tipoDistraccion:'Increase distraction',
+  tipoLibre:'Free goal (I mark it myself)',
+  nivelDistraccion:'Distraction level', nivel:'Level',
+  deNivelA:'From level {a} to level {b}',
+  nivelesDistraccion:[
+    'No distractions',
+    'Mild distractions',
+    'Moderate distractions',
+    'High distractions',
+    'Maximum distractions'
+  ],
+  conductaObj:'Behavior', conductaOpcional:'Behavior (optional)',
+  sinConducta:'No behavior linked', metaEstadio:'Stage to reach',
+  puntoPartida:'Starting point', metaAlcanzar:'Target to reach',
+  marcaActual:'Current mark', actualizarMarca:'Update the mark when they achieve it',
+  unidadTiempo:'Unit', segundos:'seconds', minutos:'minutes',
+  unidadDistancia:'Unit', metros:'metres', pasos:'steps',
+  plazo:'Deadline', plazo3d:'3 days', plazo1s:'1 week', plazo2s:'2 weeks', plazo1m:'1 month',
+  plazoFecha:'Due date',
+  faltanDiasObj:'{d} left', venceHoyObj:'Due today', vencidoHaceObj:'Overdue by {d}',
+  objetivoLibrePH:'E.g.: train at the park with distractions',
+  crearObjetivo:'Create goal', sinObjetivos:'No goals set yet.',
+  objetivoCumplido:'Achieved!', noLogrado:'Not achieved in time',
+  marcarHecho:'Mark as done', marcadoHecho:'Done ✓ (tap to undo)',
+  primeroCreaObj:'First create at least one behavior so you can set goals for it.',
+  deEstadioA:'From stage {a} to stage {b}',
+  objetivoCol:'Goal', metaCol:'Target', progresoCol:'Progress', plazoCol:'Deadline',
+  estadoCol:'Status', enCurso:'In progress'
 },
 pt:{
   tabConductas:'Condutas', tabCrono:'Cronograma', tabVet:'Veterinária', tabPerros:'Cães',
@@ -780,12 +901,12 @@ pt:{
   dia:'dia', diasU:'dias', anio:'ano', anios:'anos', mes:'mês', meses:'meses', y:'e',
   tituloPerros:'Perfis de cães', perfil:'perfil', perfiles:'perfis',
   enUso:'em uso: {n}', enUsoBadge:'Em uso',
-  ayudaPerros:'Cada cão tem sua própria grade, cronograma e ficha veterinária.',
+  ayudaPerros:'Cada cão tem suas próprias condutas, objetivos e ficha de dados.',
   agregarPerro:'Adicionar cão', nombrePerroPH:'Nome do cão (ex.: Rocco)',
   crearPerfil:'Criar perfil', conducta:'conduta', conductas:'condutas',
   usar:'Usar', sexo:'Sexo', macho:'Macho', hembra:'Fêmea',
   eliminarPerfil:'Apagar este perfil e todos os seus dados',
-  confirmEliminarPerfil:'Toque de novo para confirmar (a grade e o cronograma serão apagados)',
+  confirmEliminarPerfil:'Toque de novo para confirmar (as condutas e objetivos serão apagados)',
   unicoPerfil:'O único perfil existente não pode ser apagado: sempre deve haver ao menos um.',
   perroSinNombre:'Cão sem nome', miPerro:'Meu cão',
   config:'Configurações', idioma:'Idioma', colores:'Cores',
@@ -800,15 +921,52 @@ pt:{
   importOk:'Dados importados com sucesso ✓',
   importErr:'O texto colado não é um backup válido.',
   borrarTodo:'Apagar todos os dados',
-  confirmBorrarTodo:'Toque de novo para confirmar (TUDO será apagado: cães, condutas, séries, cronogramas e fichas)',
+  confirmBorrarTodo:'Toque de novo para confirmar (TUDO será apagado: cães, condutas, séries, objetivos e fichas)',
   borradoOk:'Dados apagados. O app ficou como novo.',
   nombreCol:'Nome', perroCol:'Cão', fechaCol:'Data', diaCol:'Dia', horaCol:'Hora',
   observacionCol:'Observação', notaCol:'Nota',
   exportarExcel:'Baixar Excel (.xlsx)',
-  excelTexto:'O Excel tem uma planilha por seção (cães, condutas, séries e cronograma), fácil de ler e imprimir.',
+  excelTexto:'O Excel tem uma planilha por seção (cães, condutas, séries e objetivos), fácil de ler e imprimir.',
   respaldoTexto:'Backup de texto (necessário para importar)',
   excelErr:'Não foi possível gerar o Excel neste ambiente. Use o backup de texto.',
-  excelOk:'Excel gerado ✓'
+  excelOk:'Excel gerado ✓',
+  carpeta:'Pasta', sinCarpeta:'Sem pasta', nuevaCarpeta:'+ Nova pasta…',
+  nombreCarpetaPH:'Nome da pasta (ex.: obediência básica)',
+  crearCarpeta:'Criar', carpetaVacia:'Esta pasta está vazia',
+  quitarCarpeta:'Remover pasta? As condutas vão para «Sem pasta»',
+  tabObjetivos:'Objetivos', tituloObjetivos:'Objetivos',
+  objetivoU:'objetivo', objetivosU:'objetivos',
+  ayudaObjetivos:'Cada objetivo tem um prazo. Os de estágio se atualizam sozinhos; os de tempo e distância você registra.',
+  nuevoObjetivo:'Novo objetivo', tipoObjetivo:'O que você quer alcançar?',
+  tipoEstadio:'Progredir de estágio', tipoTiempo:'Incrementar a duração',
+  tipoDistancia:'Incrementar a distância', tipoDistraccion:'Incrementar a distração',
+  tipoLibre:'Objetivo livre (marco manualmente)',
+  nivelDistraccion:'Nível de distração', nivel:'Nível',
+  deNivelA:'Do nível {a} ao nível {b}',
+  nivelesDistraccion:[
+    'Sem distrações',
+    'Distrações leves',
+    'Distrações moderadas',
+    'Distrações altas',
+    'Distrações máximas'
+  ],
+  conductaObj:'Conduta', conductaOpcional:'Conduta (opcional)',
+  sinConducta:'Sem conduta associada', metaEstadio:'Estágio a alcançar',
+  puntoPartida:'Ponto de partida', metaAlcanzar:'Meta a alcançar',
+  marcaActual:'Marca atual', actualizarMarca:'Atualize a marca quando ele conseguir',
+  unidadTiempo:'Unidade', segundos:'segundos', minutos:'minutos',
+  unidadDistancia:'Unidade', metros:'metros', pasos:'passos',
+  plazo:'Prazo', plazo3d:'3 dias', plazo1s:'1 semana', plazo2s:'2 semanas', plazo1m:'1 mês',
+  plazoFecha:'Data limite',
+  faltanDiasObj:'Faltam {d}', venceHoyObj:'Vence hoje', vencidoHaceObj:'Vencido há {d}',
+  objetivoLibrePH:'Ex.: treinar na praça com distrações',
+  crearObjetivo:'Criar objetivo', sinObjetivos:'Ainda não criou objetivos.',
+  objetivoCumplido:'Cumprido!', noLogrado:'Não foi alcançado no prazo',
+  marcarHecho:'Marcar como feito', marcadoHecho:'Feito ✓ (toque para desmarcar)',
+  primeroCreaObj:'Primeiro crie ao menos uma conduta para poder definir objetivos.',
+  deEstadioA:'Do estágio {a} ao estágio {b}',
+  objetivoCol:'Objetivo', metaCol:'Meta', progresoCol:'Progresso', plazoCol:'Prazo',
+  estadoCol:'Estado', enCurso:'Em curso'
 }
 };
 
@@ -872,7 +1030,9 @@ function nuevoPerro(nombre){
     sexo: '',
     vet: vetVacio(),
     trucos: [],
-    cronograma: []
+    carpetas: [],
+    carpetasCerradas: [],
+    objetivos: []
   };
 }
 function vetVacio(){
@@ -889,28 +1049,23 @@ function perroActual(){
 function activarRefs(){
   const p = perroActual();
   items = p ? p.trucos : [];
-  cronograma = p ? p.cronograma : [];
 }
 function setItems(arr){
   const p = perroActual();
   if(p) p.trucos = arr;
   items = arr;
 }
-function setCronograma(arr){
-  const p = perroActual();
-  if(p) p.cronograma = arr;
-  cronograma = arr;
-}
 function nuevoItem(){
   return {
     id: 'i' + Date.now() + Math.floor(Math.random()*1000),
-    truco: '', descripcion: '', estadio: 1, series: []
+    truco: '', descripcion: '', carpeta: '', estadio: 1, series: []
   };
 }
 
 function migrarTrucos(arr){
   return arr.map(it=>{
     if(typeof it.descripcion !== 'string') it.descripcion = '';
+    if(typeof it.carpeta !== 'string') it.carpeta = '';
     if(!Array.isArray(it.series)){
       it.series = [];
       const total = (typeof it.total === 'number') ? it.total
@@ -940,7 +1095,16 @@ function sanearDatos(){
   }
   datos.perros.forEach(p=>{
     if(!Array.isArray(p.trucos)) p.trucos = [];
-    if(!Array.isArray(p.cronograma)) p.cronograma = [];
+    if(!Array.isArray(p.carpetas)) p.carpetas = [];
+    if(!Array.isArray(p.carpetasCerradas)) p.carpetasCerradas = [];
+    if(!Array.isArray(p.objetivos)) p.objetivos = [];
+    /* Descarta objetivos del formato anterior (metas semanales por cantidad),
+       que no tienen equivalente en el modelo con plazos. */
+    p.objetivos = p.objetivos.filter(o=>o && ['estadio','tiempo','distancia','distraccion','libre'].includes(o.tipo));
+    /* Si un truco quedó apuntando a una carpeta que no está en la lista, la registra */
+    p.trucos.forEach(tk=>{
+      if(tk && tk.carpeta && !p.carpetas.includes(tk.carpeta)) p.carpetas.push(tk.carpeta);
+    });
     if(typeof p.sexo !== 'string') p.sexo = '';
     if(!p.vet || typeof p.vet !== 'object') p.vet = vetVacio();
     const base = vetVacio();
@@ -970,18 +1134,13 @@ async function cargar(){
   }catch(e){}
 
   if(!cargado){
-    let trucosViejos = [], cronoViejo = [];
+    let trucosViejos = [];
     try{
       const r = store.get(CLAVE_VIEJA);
       if(r && r.value) trucosViejos = migrarTrucos(JSON.parse(r.value));
     }catch(e){}
-    try{
-      const c = store.get(CLAVE_CRONO_VIEJA);
-      if(c && c.value) cronoViejo = JSON.parse(c.value);
-    }catch(e){}
     const primero = nuevoPerro(t('miPerro'));
     primero.trucos = trucosViejos;
-    primero.cronograma = cronoViejo;
     datos = { activo: primero.id, perros: [primero] };
   }
 
@@ -1114,16 +1273,16 @@ function htmlPestanas(){
   return `
     <div class="pestanas">
       <button class="pestana ${pestana==='grilla'?'activa':''}" id="tabGrilla">${t('tabConductas')}</button>
-      <button class="pestana ${pestana==='crono'?'activa':''}" id="tabCrono">${t('tabCrono')}</button>
+      <button class="pestana ${pestana==='obj'?'activa':''}" id="tabObj">${t('tabObjetivos')}</button>
       <button class="pestana ${pestana==='perros'?'activa':''}" id="tabPerros">${t('tabPerros')}</button>
     </div>`;
 }
 function conectarPestanas(){
   const g = document.getElementById('tabGrilla');
-  const c = document.getElementById('tabCrono');
+  const o = document.getElementById('tabObj');
   const p = document.getElementById('tabPerros');
   if(g) g.addEventListener('click', ()=>{ pestana='grilla'; vistaActual=null; render(); });
-  if(c) c.addEventListener('click', ()=>{ pestana='crono'; vistaActual=null; render(); });
+  if(o) o.addEventListener('click', ()=>{ pestana='obj'; vistaActual=null; render(); });
   if(p) p.addEventListener('click', ()=>{ pestana='perros'; vistaActual=null; render(); });
 }
 
@@ -1165,49 +1324,111 @@ function renderLista(){
     return;
   }
 
-  items.forEach((item, idx)=>{
-    const a = acumulado(item);
-    const card = document.createElement('div');
-    card.className = 'tarjeta-lista';
-    card.innerHTML = `
-      <div class="orden-col">
-        <button class="btn-orden" data-mover="-1" ${idx===0?'disabled':''} aria-label="↑">↑</button>
-        <button class="btn-orden" data-mover="1" ${idx===items.length-1?'disabled':''} aria-label="↓">↓</button>
-      </div>
-      <div class="info-lista">
-        <div class="nombre-lista ${item.truco.trim()?'':'sin-nombre'}">${escapar(item.truco.trim()) || t('sinNombre')}</div>
-        ${item.descripcion && item.descripcion.trim() ? `<div class="desc-lista">${escapar(item.descripcion.trim())}</div>` : ''}
-        ${huellasMini(item.estadio)}
-        <div class="stats-lista">${
-          a.total>0
-            ? a.cantSeries + ' ' + (a.cantSeries===1?t('serie'):t('series')) + ' · <b>' + a.exitos + '</b> ' + t('de') + ' ' + a.total + ' ' + t('exitos') + ' (' + a.pct + '%)'
-            : t('sinSeriesReg')
-        }</div>
-        ${(()=>{
-          const ult = item.series[0];
-          if(ult && typeof ult.estadio === 'number'){
-            return '<div class="stats-lista">' + t('ultimaSeriePref') + ' <b style="color:var(--premio)">' + ult.estadio + ' / 5</b> · ' + fechaLegible(ult.fecha) + '</div>';
-          }
-          return '';
-        })()}
-      </div>
-      <span class="flecha">›</span>
-    `;
-    card.addEventListener('click', ()=>{ vistaActual = item.id; render(); });
-    card.querySelectorAll('.btn-orden').forEach(b=>{
-      b.addEventListener('click', ev=>{
-        ev.stopPropagation();
-        const delta = parseInt(b.dataset.mover,10);
-        const i = items.indexOf(item);
-        const j = i + delta;
-        if(j < 0 || j >= items.length) return;
-        [items[i], items[j]] = [items[j], items[i]];
+  const p = perroActual();
+
+  /* Grupos a mostrar: primero las conductas sin carpeta, después cada carpeta */
+  const grupos = [{nombre:'', trucos: items.filter(i=>!i.carpeta)}];
+  p.carpetas.forEach(c=>{
+    grupos.push({nombre:c, trucos: items.filter(i=>i.carpeta===c)});
+  });
+
+  grupos.forEach(g=>{
+    /* El grupo "sin carpeta" no muestra encabezado si no hay carpetas creadas */
+    const hayCarpetas = p.carpetas.length > 0;
+    if(g.nombre === '' && g.trucos.length === 0) return;
+
+    if(hayCarpetas){
+      const cerrada = p.carpetasCerradas.includes(g.nombre);
+      const cab = document.createElement('div');
+      cab.className = 'carpeta-cab' + (cerrada ? ' cerrada' : '');
+      cab.innerHTML = `
+        <span class="carpeta-flecha">▼</span>
+        <span class="carpeta-nombre">${g.nombre ? escapar(g.nombre) : t('sinCarpeta')}</span>
+        <span class="carpeta-conteo">${g.trucos.length}</span>
+        ${g.nombre ? '<button class="btn-borrar-carpeta">✕</button>' : ''}
+      `;
+      cab.addEventListener('click', ()=>{
+        if(cerrada) p.carpetasCerradas = p.carpetasCerradas.filter(x=>x!==g.nombre);
+        else p.carpetasCerradas.push(g.nombre);
         programarGuardado();
         render();
       });
+      const bx = cab.querySelector('.btn-borrar-carpeta');
+      if(bx){
+        bx.addEventListener('click', ev=>ev.stopPropagation());
+        conConfirmacion(bx, '✕', t('quitarCarpeta'), ()=>{
+          items.forEach(tk=>{ if(tk.carpeta===g.nombre) tk.carpeta = ''; });
+          p.carpetas = p.carpetas.filter(x=>x!==g.nombre);
+          p.carpetasCerradas = p.carpetasCerradas.filter(x=>x!==g.nombre);
+          programarGuardado();
+          render();
+        });
+      }
+      lista.appendChild(cab);
+      if(cerrada) return;
+
+      if(g.trucos.length === 0){
+        const v = document.createElement('div');
+        v.className = 'carpeta-vacia';
+        v.textContent = t('carpetaVacia');
+        lista.appendChild(v);
+        return;
+      }
+    }
+
+    g.trucos.forEach((item, idx)=>{
+      lista.appendChild(tarjetaTruco(item, g.trucos, idx));
     });
-    lista.appendChild(card);
   });
+}
+
+/* Construye la tarjeta de una conducta. El reordenamiento con ↑↓ se hace
+   dentro del grupo: mover una conducta la intercambia con su vecina de la
+   misma carpeta, no con cualquiera de la lista global. */
+function tarjetaTruco(item, grupo, idx){
+  const a = acumulado(item);
+  const card = document.createElement('div');
+  card.className = 'tarjeta-lista';
+  card.innerHTML = `
+    <div class="orden-col">
+      <button class="btn-orden" data-mover="-1" ${idx===0?'disabled':''} aria-label="↑">↑</button>
+      <button class="btn-orden" data-mover="1" ${idx===grupo.length-1?'disabled':''} aria-label="↓">↓</button>
+    </div>
+    <div class="info-lista">
+      <div class="nombre-lista ${item.truco.trim()?'':'sin-nombre'}">${escapar(item.truco.trim()) || t('sinNombre')}</div>
+      ${item.descripcion && item.descripcion.trim() ? `<div class="desc-lista">${escapar(item.descripcion.trim())}</div>` : ''}
+      ${huellasMini(item.estadio)}
+      <div class="stats-lista">${
+        a.total>0
+          ? a.cantSeries + ' ' + (a.cantSeries===1?t('serie'):t('series')) + ' · <b>' + a.exitos + '</b> ' + t('de') + ' ' + a.total + ' ' + t('exitos') + ' (' + a.pct + '%)'
+          : t('sinSeriesReg')
+      }</div>
+      ${(()=>{
+        const ult = item.series[0];
+        if(ult && typeof ult.estadio === 'number'){
+          return '<div class="stats-lista">' + t('ultimaSeriePref') + ' <b style="color:var(--premio)">' + ult.estadio + ' / 5</b> · ' + fechaLegible(ult.fecha) + '</div>';
+        }
+        return '';
+      })()}
+    </div>
+    <span class="flecha">›</span>
+  `;
+  card.addEventListener('click', ()=>{ vistaActual = item.id; render(); });
+  card.querySelectorAll('.btn-orden').forEach(b=>{
+    b.addEventListener('click', ev=>{
+      ev.stopPropagation();
+      const delta = parseInt(b.dataset.mover,10);
+      const vecino = grupo[idx + delta];
+      if(!vecino) return;
+      const i = items.indexOf(item);
+      const j = items.indexOf(vecino);
+      if(i < 0 || j < 0) return;
+      [items[i], items[j]] = [items[j], items[i]];
+      programarGuardado();
+      render();
+    });
+  });
+  return card;
 }
 
 /* ================= CONDUCTAS: DETALLE ================= */
@@ -1249,6 +1470,11 @@ function renderDetalle(item){
       <span class="etiqueta">${t('descripcionTruco')}</span>
       <textarea class="obs desc-truco" rows="2" maxlength="300"
         placeholder="${t('descripcionPH')}">${escapar(item.descripcion || '')}</textarea>
+    </div>
+
+    <div class="bloque">
+      <span class="etiqueta">${t('carpeta')}</span>
+      <div id="zonaCarpeta"></div>
     </div>
 
     <div class="bloque">
@@ -1429,6 +1655,47 @@ function renderDetalle(item){
     programarGuardado();
   });
 
+  /* Selector de carpeta: lista las existentes y permite crear una nueva */
+  const perro = perroActual();
+  const zonaCarpeta = card.querySelector('#zonaCarpeta');
+
+  function pintarCarpeta(creando){
+    if(creando){
+      zonaCarpeta.innerHTML = `
+        <div class="fila-nueva-carpeta">
+          <input class="input-texto" id="inputCarpetaNueva" type="text" maxlength="40"
+                 placeholder="${t('nombreCarpetaPH')}" style="margin-bottom:0">
+          <button class="btn-mini" id="btnCrearCarpeta">${t('crearCarpeta')}</button>
+        </div>`;
+      const inp = zonaCarpeta.querySelector('#inputCarpetaNueva');
+      inp.focus();
+      const crear = ()=>{
+        const nombre = inp.value.trim();
+        if(!nombre){ pintarCarpeta(false); return; }
+        if(!perro.carpetas.includes(nombre)) perro.carpetas.push(nombre);
+        item.carpeta = nombre;
+        programarGuardado();
+        pintarCarpeta(false);
+      };
+      zonaCarpeta.querySelector('#btnCrearCarpeta').addEventListener('click', crear);
+      inp.addEventListener('keydown', e=>{ if(e.key === 'Enter') crear(); });
+      return;
+    }
+
+    let ops = `<option value="">${t('sinCarpeta')}</option>`;
+    perro.carpetas.forEach(c=>{
+      ops += `<option value="${escapar(c)}" ${item.carpeta===c?'selected':''}>${escapar(c)}</option>`;
+    });
+    ops += `<option value="__nueva__">${t('nuevaCarpeta')}</option>`;
+    zonaCarpeta.innerHTML = `<select class="selector" style="margin-bottom:0">${ops}</select>`;
+    zonaCarpeta.querySelector('select').addEventListener('change', e=>{
+      if(e.target.value === '__nueva__'){ pintarCarpeta(true); return; }
+      item.carpeta = e.target.value;
+      programarGuardado();
+    });
+  }
+  pintarCarpeta(false);
+
   card.querySelectorAll('.huella').forEach(b=>{
     b.addEventListener('click', ()=>{
       item.estadio = parseInt(b.dataset.n,10);
@@ -1500,22 +1767,101 @@ function renderDetalle(item){
   lista.appendChild(btnEliminar);
 }
 
-/* ================= CRONOGRAMA ================= */
-function nombreTruco(trucoId){
-  const tk = items.find(i=>i.id===trucoId);
-  return tk ? (tk.truco.trim() || t('sinNombre')) : null;
+/* ================= OBJETIVOS ================= */
+/*
+   Cada objetivo tiene un plazo (fecha límite). Cuatro tipos:
+   - estadio    : progresar de estadio. El avance se lee solo de la conducta.
+   - tiempo     : duración, en segundos o minutos. La marca la carga la persona.
+   - distancia  : metros o pasos. La marca la carga la persona.
+   - distraccion: nivel de entorno del 1 al 5. El nivel lo carga la persona.
+   - libre      : texto propio, se marca a mano.
+   Duración, distancia y distracción son las tres D del adiestramiento.
+*/
+
+function hoyCero(){
+  const d = new Date(); d.setHours(0,0,0,0); return d;
+}
+function aISO(d){
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function diasHasta(fechaISO){
+  if(!fechaISO) return null;
+  const f = new Date(fechaISO + 'T00:00:00');
+  if(isNaN(f.getTime())) return null;
+  return Math.round((f - hoyCero()) / 86400000);
+}
+function textoDiasObj(d){
+  return d + ' ' + (d===1 ? t('dia') : t('diasU'));
 }
 
-function renderCronograma(){
+function unidadTexto(obj){
+  if(obj.tipo === 'tiempo')    return obj.unidad === 'min' ? t('minutos') : t('segundos');
+  if(obj.tipo === 'distancia') return obj.unidad === 'pasos' ? t('pasos') : t('metros');
+  return '';
+}
+
+/* Nombre descriptivo del nivel de distracción (1 a 5) */
+function nombreNivel(n){
+  const ns = t('nivelesDistraccion');
+  return ns[Math.max(1, Math.min(5, n)) - 1] || '';
+}
+
+/* Devuelve el estado de un objetivo: valor actual, meta, porcentaje y si se cumplió. */
+function progresoObjetivo(p, obj){
+  let desde = obj.desde || 0;
+  let meta  = obj.meta  || 0;
+  let valor;
+
+  if(obj.tipo === 'libre'){
+    return {libre:true, cumplido: !!obj.hecho, pct: obj.hecho?100:0, valor:0, meta:0, desde:0};
+  }
+  if(obj.tipo === 'estadio'){
+    const tk = (p.trucos||[]).find(x=>x.id===obj.trucoId);
+    valor = tk ? tk.estadio : desde;   /* se actualiza solo al cambiar las huellitas */
+  } else {
+    valor = (typeof obj.actual === 'number') ? obj.actual : desde;
+  }
+
+  const recorrido = meta - desde;
+  const avance = valor - desde;
+  const pct = recorrido > 0 ? Math.max(0, Math.min(100, Math.round(100*avance/recorrido)))
+                            : (valor >= meta ? 100 : 0);
+  return {libre:false, cumplido: valor >= meta, pct, valor, meta, desde};
+}
+
+/* Texto y color del plazo. */
+function estadoPlazo(obj, cumplido){
+  const d = diasHasta(obj.fechaLimite);
+  if(d === null) return {clase:'', texto:''};
+  if(cumplido)   return {clase:'ok', texto: t('objetivoCumplido')};
+  if(d < 0)      return {clase:'vencida', texto: t('vencidoHaceObj', {d: textoDiasObj(Math.abs(d))})};
+  if(d === 0)    return {clase:'vencida', texto: t('venceHoyObj')};
+  if(d <= 3)     return {clase:'proxima', texto: t('faltanDiasObj', {d: textoDiasObj(d)})};
+  return {clase:'ok', texto: t('faltanDiasObj', {d: textoDiasObj(d)})};
+}
+
+function tituloObjetivo(p, obj){
+  if(obj.tipo === 'libre') return escapar(obj.texto);
+  if(obj.tipo === 'estadio'){
+    return t('deEstadioA', {a: obj.desde, b: obj.meta});
+  }
+  if(obj.tipo === 'distraccion'){
+    return t('deNivelA', {a: obj.desde, b: obj.meta});
+  }
+  return obj.meta + ' ' + unidadTexto(obj);
+}
+
+function renderObjetivos(){
+  const p = perroActual();
   const cab = document.getElementById('cabecera');
   cab.className = '';
   cab.innerHTML = `
     ${htmlBotonConfig()}
     <div class="eyebrow">${t('cuaderno')} · ${escapar(nombrePerroActual())}</div>
-    <h1>${t('tituloCrono')}</h1>
+    <h1>${t('tituloObjetivos')}</h1>
     <div class="resumen">${
-      cronograma.length===0 ? t('sinSesionesPlan')
-      : cronograma.length + ' ' + (cronograma.length===1?t('sesionPlan'):t('sesionesPlan'))
+      p.objetivos.length === 0 ? t('sinObjetivos')
+      : p.objetivos.length + ' ' + (p.objetivos.length===1?t('objetivoU'):t('objetivosU'))
     }</div>
     <div class="estado-guardado" id="estadoGuardado"></div>
     ${htmlSelectorPerro()}
@@ -1524,118 +1870,327 @@ function renderCronograma(){
   conectarBotonConfig();
   conectarSelectorPerro();
   conectarPestanas();
-  document.getElementById('ayuda').textContent = t('ayudaCrono');
+  document.getElementById('ayuda').textContent = t('ayudaObjetivos');
   document.getElementById('btnAgregar').classList.add('oculto');
 
   const lista = document.getElementById('lista');
   lista.innerHTML = '';
 
+  /* ---------- Formulario ---------- */
   const form = document.createElement('div');
   form.className = 'tarjeta form-serie';
 
-  if(items.length === 0){
+  if((p.trucos||[]).length === 0){
     form.innerHTML = `
-      <span class="etiqueta">${t('agregarSesion')}</span>
-      <div class="sin-series">${t('primeroCrea')}</div>
-    `;
+      <span class="etiqueta">${t('nuevoObjetivo')}</span>
+      <div class="sin-series">${t('primeroCreaObj')}</div>`;
+    lista.appendChild(form);
   } else {
-    let opciones = '';
-    items.forEach(tk=>{
-      opciones += `<option value="${tk.id}">${escapar(tk.truco.trim() || t('sinNombre'))} (${t('estadio').toLowerCase()} ${tk.estadio}/5)</option>`;
+    let opsTrucos = '';
+    (p.trucos||[]).forEach(tk=>{
+      opsTrucos += `<option value="${tk.id}">${escapar(tk.truco.trim() || t('sinNombre'))}</option>`;
     });
-    const DIAS = t('dias');
-    form.innerHTML = `
-      <span class="etiqueta">${t('agregarSesion')}</span>
 
-      <span class="sub-etiqueta">${t('diaSemana')}</span>
-      <select class="selector" id="selDia">
-        ${DIAS.map((d,i)=>`<option value="${i}">${d}</option>`).join('')}
+    form.innerHTML = `
+      <span class="etiqueta">${t('nuevoObjetivo')}</span>
+
+      <span class="sub-etiqueta">${t('tipoObjetivo')}</span>
+      <select class="selector" id="objTipo">
+        <option value="estadio">${t('tipoEstadio')}</option>
+        <option value="tiempo">${t('tipoTiempo')}</option>
+        <option value="distancia">${t('tipoDistancia')}</option>
+        <option value="distraccion">${t('tipoDistraccion')}</option>
+        <option value="libre">${t('tipoLibre')}</option>
       </select>
 
-      <span class="sub-etiqueta">${t('conductaPracticar')}</span>
-      <select class="selector" id="selTruco">${opciones}</select>
+      <div id="objCampos"></div>
 
-      <span class="sub-etiqueta">${t('horaOpc')}</span>
-      <input class="input-hora" id="inputHora" type="time">
+      <span class="sub-etiqueta">${t('plazo')}</span>
+      <div class="chips" id="objPlazos">
+        <span class="chip"><button class="chip-txt" data-dias="3">${t('plazo3d')}</button></span>
+        <span class="chip sel"><button class="chip-txt" data-dias="7">${t('plazo1s')}</button></span>
+        <span class="chip"><button class="chip-txt" data-dias="14">${t('plazo2s')}</button></span>
+        <span class="chip"><button class="chip-txt" data-dias="30">${t('plazo1m')}</button></span>
+      </div>
+      <span class="sub-etiqueta">${t('plazoFecha')}</span>
+      <input class="input-hora" id="objFecha" type="date">
 
-      <span class="sub-etiqueta">${t('notaOpc')}</span>
-      <textarea class="obs" id="inputNota" rows="2" maxlength="200"
-        placeholder="${t('notaPH')}"></textarea>
-
-      <button class="btn-guardar-serie" id="btnAgregarCrono">${t('agregarAlCrono')}</button>
+      <button class="btn-guardar-serie" id="btnCrearObjetivo">${t('crearObjetivo')}</button>
     `;
-  }
-  lista.appendChild(form);
+    lista.appendChild(form);
 
-  if(items.length > 0){
-    form.querySelector('#btnAgregarCrono').addEventListener('click', ()=>{
-      cronograma.push({
-        id: 'c' + Date.now() + Math.floor(Math.random()*1000),
-        dia: parseInt(form.querySelector('#selDia').value,10),
-        trucoId: form.querySelector('#selTruco').value,
-        hora: form.querySelector('#inputHora').value || '',
-        nota: form.querySelector('#inputNota').value.trim()
+    const selTipo = form.querySelector('#objTipo');
+    const campos  = form.querySelector('#objCampos');
+    const inpFecha = form.querySelector('#objFecha');
+
+    /* Los botones de plazo solo rellenan la fecha; se puede ajustar a mano */
+    function fijarPlazo(dias){
+      const d = hoyCero(); d.setDate(d.getDate() + dias);
+      inpFecha.value = aISO(d);
+    }
+    fijarPlazo(7);
+    form.querySelectorAll('#objPlazos .chip-txt').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        fijarPlazo(parseInt(b.dataset.dias,10));
+        form.querySelectorAll('#objPlazos .chip').forEach(c=>c.classList.remove('sel'));
+        b.parentElement.classList.add('sel');
       });
+    });
+    inpFecha.addEventListener('input', ()=>{
+      form.querySelectorAll('#objPlazos .chip').forEach(c=>c.classList.remove('sel'));
+    });
+
+    function pintarCampos(){
+      const tipo = selTipo.value;
+
+      if(tipo === 'libre'){
+        campos.innerHTML = `
+          <span class="sub-etiqueta">${t('conductaOpcional')}</span>
+          <select class="selector" id="objTruco">
+            <option value="">${t('sinConducta')}</option>
+            ${opsTrucos}
+          </select>
+          <span class="sub-etiqueta">${t('objetivoCol')}</span>
+          <textarea class="obs" id="objTexto" rows="2" maxlength="150"
+            placeholder="${t('objetivoLibrePH')}"></textarea>`;
+        return;
+      }
+
+      if(tipo === 'estadio'){
+        campos.innerHTML = `
+          <span class="sub-etiqueta">${t('conductaObj')}</span>
+          <select class="selector" id="objTruco">${opsTrucos}</select>
+          <div class="nota-vet" id="objPartida" style="margin-bottom:10px"></div>
+          <span class="sub-etiqueta">${t('metaEstadio')}</span>
+          <select class="selector" id="objMetaEstadio"></select>`;
+
+        const selTruco = campos.querySelector('#objTruco');
+        const selMeta  = campos.querySelector('#objMetaEstadio');
+        const partida  = campos.querySelector('#objPartida');
+
+        function refrescarEstadios(){
+          const tk = (p.trucos||[]).find(x=>x.id===selTruco.value);
+          const act = tk ? tk.estadio : 1;
+          partida.textContent = t('puntoPartida') + ': ' + t('estadio').toLowerCase() + ' ' + act + ' / 5';
+          let ops = '';
+          for(let n=act+1; n<=5; n++) ops += `<option value="${n}">${t('estadio')} ${n} / 5</option>`;
+          if(!ops) ops = `<option value="5">${t('estadio')} 5 / 5</option>`;
+          selMeta.innerHTML = ops;
+        }
+        refrescarEstadios();
+        selTruco.addEventListener('change', refrescarEstadios);
+        return;
+      }
+
+      if(tipo === 'distraccion'){
+        let opsNiv = '';
+        for(let n=1;n<=5;n++) opsNiv += `<option value="${n}">${t('nivel')} ${n} — ${escapar(nombreNivel(n))}</option>`;
+        campos.innerHTML = `
+          <span class="sub-etiqueta">${t('conductaObj')}</span>
+          <select class="selector" id="objTruco">${opsTrucos}</select>
+
+          <span class="sub-etiqueta">${t('puntoPartida')}</span>
+          <select class="selector" id="objDesdeNivel">${opsNiv}</select>
+
+          <span class="sub-etiqueta">${t('metaAlcanzar')}</span>
+          <select class="selector" id="objMetaNivel"></select>`;
+
+        const selDesde = campos.querySelector('#objDesdeNivel');
+        const selMeta  = campos.querySelector('#objMetaNivel');
+        function refrescarNiveles(){
+          const d = parseInt(selDesde.value,10) || 1;
+          let ops = '';
+          for(let n=d+1; n<=5; n++) ops += `<option value="${n}">${t('nivel')} ${n} — ${escapar(nombreNivel(n))}</option>`;
+          if(!ops) ops = `<option value="5">${t('nivel')} 5 — ${escapar(nombreNivel(5))}</option>`;
+          selMeta.innerHTML = ops;
+        }
+        refrescarNiveles();
+        selDesde.addEventListener('change', refrescarNiveles);
+        return;
+      }
+
+      /* tiempo o distancia */
+      const unidades = (tipo === 'tiempo')
+        ? `<option value="seg">${t('segundos')}</option><option value="min">${t('minutos')}</option>`
+        : `<option value="metros">${t('metros')}</option><option value="pasos">${t('pasos')}</option>`;
+      campos.innerHTML = `
+        <span class="sub-etiqueta">${t('conductaObj')}</span>
+        <select class="selector" id="objTruco">${opsTrucos}</select>
+
+        <span class="sub-etiqueta">${tipo==='tiempo' ? t('unidadTiempo') : t('unidadDistancia')}</span>
+        <select class="selector" id="objUnidad">${unidades}</select>
+
+        <span class="sub-etiqueta">${t('puntoPartida')}</span>
+        <div class="fila-reps" style="margin-bottom:10px">
+          <button class="btn-paso" data-campo="objDesde" data-d="-1">−</button>
+          <input class="num-reps" id="objDesde" type="number" inputmode="numeric" min="0" value="0">
+          <button class="btn-paso" data-campo="objDesde" data-d="1">+</button>
+        </div>
+
+        <span class="sub-etiqueta">${t('metaAlcanzar')}</span>
+        <div class="fila-reps" style="margin-bottom:10px">
+          <button class="btn-paso" data-campo="objMeta" data-d="-1">−</button>
+          <input class="num-reps" id="objMeta" type="number" inputmode="numeric" min="1" value="30">
+          <button class="btn-paso" data-campo="objMeta" data-d="1">+</button>
+        </div>`;
+      campos.querySelectorAll('.btn-paso').forEach(b=>{
+        b.addEventListener('click', ()=>{
+          const inp = campos.querySelector('#' + b.dataset.campo);
+          const min = b.dataset.campo === 'objMeta' ? 1 : 0;
+          inp.value = Math.max(min, (parseInt(inp.value,10)||0) + parseInt(b.dataset.d,10));
+        });
+      });
+    }
+    pintarCampos();
+    selTipo.addEventListener('change', pintarCampos);
+
+    form.querySelector('#btnCrearObjetivo').addEventListener('click', ()=>{
+      const tipo = selTipo.value;
+      const obj = {
+        id: 'o' + Date.now() + Math.floor(Math.random()*1000),
+        tipo: tipo, trucoId: '', desde: 0, meta: 0, actual: 0,
+        unidad: '', texto: '', hecho: false,
+        fechaLimite: inpFecha.value || '',
+        creado: new Date().toISOString()
+      };
+
+      if(tipo === 'libre'){
+        obj.texto = campos.querySelector('#objTexto').value.trim();
+        if(!obj.texto) return;
+        obj.trucoId = campos.querySelector('#objTruco').value;  /* puede quedar vacío */
+      } else if(tipo === 'estadio'){
+        obj.trucoId = campos.querySelector('#objTruco').value;
+        const tk = (p.trucos||[]).find(x=>x.id===obj.trucoId);
+        obj.desde = tk ? tk.estadio : 1;
+        obj.meta  = parseInt(campos.querySelector('#objMetaEstadio').value,10) || 5;
+      } else if(tipo === 'distraccion'){
+        obj.trucoId = campos.querySelector('#objTruco').value;
+        obj.desde = parseInt(campos.querySelector('#objDesdeNivel').value,10) || 1;
+        obj.meta  = parseInt(campos.querySelector('#objMetaNivel').value,10) || 5;
+        obj.actual = obj.desde;
+        if(obj.meta <= obj.desde) obj.meta = Math.min(5, obj.desde + 1);
+      } else {
+        obj.trucoId = campos.querySelector('#objTruco').value;
+        obj.unidad  = campos.querySelector('#objUnidad').value;
+        obj.desde   = Math.max(0, parseInt(campos.querySelector('#objDesde').value,10) || 0);
+        obj.meta    = Math.max(1, parseInt(campos.querySelector('#objMeta').value,10) || 1);
+        obj.actual  = obj.desde;
+        if(obj.meta <= obj.desde) obj.meta = obj.desde + 1;
+      }
+
+      p.objetivos.push(obj);
       programarGuardado();
       render();
     });
   }
 
-  const DIAS = t('dias');
-  for(let d=0; d<7; d++){
-    const delDia = cronograma
-      .filter(c=>c.dia===d)
-      .sort((x,y)=>{
-        if(!x.hora && !y.hora) return 0;
-        if(!x.hora) return 1;
-        if(!y.hora) return -1;
-        return x.hora.localeCompare(y.hora);
-      });
+  /* ---------- Lista de objetivos ---------- */
+  if(p.objetivos.length === 0){
+    const v = document.createElement('div');
+    v.className = 'sin-series';
+    v.textContent = t('sinObjetivos');
+    lista.appendChild(v);
+    return;
+  }
 
-    const card = document.createElement('div');
-    card.className = 'dia-card';
-    let html = `<div class="dia-nombre">${DIAS[d]}</div>`;
-    if(delDia.length === 0){
-      html += `<div class="dia-vacio">${t('sinSesionesDia')}</div>`;
-    }
-    card.innerHTML = html;
+  p.objetivos.forEach(obj=>{
+    const pr = progresoObjetivo(p, obj);
+    const plazo = estadoPlazo(obj, pr.cumplido);
+    const tk = obj.trucoId ? (p.trucos||[]).find(x=>x.id===obj.trucoId) : null;
+    const nombreTk = obj.trucoId
+      ? (tk ? (tk.truco.trim() || t('sinNombre')) : t('conductaEliminada'))
+      : '';
+    const vencidoSinLograr = !pr.cumplido && diasHasta(obj.fechaLimite) !== null && diasHasta(obj.fechaLimite) < 0;
 
-    delDia.forEach(c=>{
-      const nombre = nombreTruco(c.trucoId);
-      const fila = document.createElement('div');
-      fila.className = 'item-crono';
-      fila.innerHTML = `
-        <div class="hora-crono ${c.hora?'':'sin-hora'}">${c.hora || t('sinHora')}</div>
-        <div class="cuerpo-crono">
-          <div class="truco-crono ${nombre===null?'eliminado':''}">${
-            nombre===null ? t('conductaEliminada') : escapar(nombre)
-          }</div>
-          ${c.nota ? `<div class="nota-crono">${escapar(c.nota)}</div>` : ''}
+    const div = document.createElement('div');
+    div.className = 'objetivo' + (pr.cumplido ? ' cumplido' : (vencidoSinLograr ? ' vencido' : ''));
+    div.innerHTML = `
+      <div class="obj-cab">
+        <div style="flex:1;min-width:0">
+          <div class="obj-titulo">${tituloObjetivo(p, obj)}</div>
+          ${nombreTk ? `<div class="obj-alcance">${escapar(nombreTk)}</div>` : ''}
         </div>
         <button class="btn-borrar-serie">✕</button>
-      `;
-      conConfirmacion(fila.querySelector('.btn-borrar-serie'), '✕', t('quitarQ'), ()=>{
-        setCronograma(cronograma.filter(x=>x.id!==c.id));
+      </div>
+
+      ${pr.libre ? '' : `
+        <div class="obj-cifras">
+          <span class="obj-num">${pr.valor}</span>
+          <span class="obj-meta">/ ${pr.meta}${(obj.tipo==='estadio'||obj.tipo==='distraccion') ? '' : ' ' + unidadTexto(obj)}</span>
+          <span class="obj-pct">${pr.pct}%</span>
+        </div>
+        <div class="barra-exito" style="margin-top:6px"><div style="width:${pr.pct}%"></div></div>
+        ${obj.tipo==='distraccion' ? `<div class="obj-alcance" style="margin-top:6px">${escapar(nombreNivel(pr.valor))}</div>` : ''}
+      `}
+
+      <div class="estado-vac ${plazo.clase}" style="margin-top:8px;margin-bottom:0">${plazo.texto}</div>
+      ${vencidoSinLograr ? `<div class="obj-fallido">${t('noLogrado')}</div>` : ''}
+
+      ${obj.tipo==='distraccion' ? `
+        <span class="sub-etiqueta" style="margin-top:10px">${t('nivelDistraccion')}</span>
+        <select class="selector nivel-actual" style="margin-bottom:0">
+          ${[1,2,3,4,5].map(n=>`<option value="${n}" ${pr.valor===n?'selected':''}>${t('nivel')} ${n} — ${escapar(nombreNivel(n))}</option>`).join('')}
+        </select>
+      ` : ''}
+
+      ${(obj.tipo==='tiempo' || obj.tipo==='distancia') ? `
+        <span class="sub-etiqueta" style="margin-top:10px">${t('marcaActual')}</span>
+        <div class="fila-reps">
+          <button class="btn-paso" data-d="-1">−</button>
+          <input class="num-reps marca" type="number" inputmode="numeric" min="0" value="${pr.valor}">
+          <button class="btn-paso" data-d="1">+</button>
+          <span class="obj-alcance">${unidadTexto(obj)}</span>
+        </div>
+      ` : ''}
+
+      ${pr.libre ? `<button class="btn-hecho ${pr.cumplido?'activo':''}">${
+        pr.cumplido ? t('marcadoHecho') : t('marcarHecho')
+      }</button>` : ''}
+    `;
+
+    /* Marca actual editable para tiempo y distancia */
+    const inpMarca = div.querySelector('.marca');
+    if(inpMarca){
+      const guardarMarca = ()=>{
+        obj.actual = Math.max(0, parseInt(inpMarca.value,10) || 0);
+        programarGuardado();
+        render();
+      };
+      div.querySelectorAll('.btn-paso').forEach(b=>{
+        b.addEventListener('click', ()=>{
+          inpMarca.value = Math.max(0, (parseInt(inpMarca.value,10)||0) + parseInt(b.dataset.d,10));
+          guardarMarca();
+        });
+      });
+      inpMarca.addEventListener('change', guardarMarca);
+    }
+
+    const selNivel = div.querySelector('.nivel-actual');
+    if(selNivel){
+      selNivel.addEventListener('change', ()=>{
+        obj.actual = parseInt(selNivel.value,10) || 1;
         programarGuardado();
         render();
       });
-      card.appendChild(fila);
-    });
+    }
 
-    lista.appendChild(card);
-  }
+    const btnHecho = div.querySelector('.btn-hecho');
+    if(btnHecho){
+      btnHecho.addEventListener('click', ()=>{
+        obj.hecho = !obj.hecho;
+        programarGuardado();
+        render();
+      });
+    }
 
-  if(cronograma.length > 0){
-    const btnLimpiar = document.createElement('button');
-    btnLimpiar.className = 'btn-eliminar-truco';
-    btnLimpiar.textContent = t('limpiarCrono');
-    conConfirmacion(btnLimpiar, t('limpiarCrono'), t('confirmLimpiarCrono'), ()=>{
-      setCronograma([]);
+    conConfirmacion(div.querySelector('.btn-borrar-serie'), '✕', t('borrarQ'), ()=>{
+      p.objetivos = p.objetivos.filter(x=>x.id!==obj.id);
       programarGuardado();
       render();
     });
-    lista.appendChild(btnLimpiar);
-  }
+
+    lista.appendChild(div);
+  });
 }
 
 /* ================= VETERINARIA ================= */
@@ -1872,7 +2427,7 @@ function renderPerros(){
       </div>
       <div class="perro-stats">${
         p.trucos.length + ' ' + (p.trucos.length===1?t('conducta'):t('conductas'))
-        + ' · ' + p.cronograma.length + ' ' + (p.cronograma.length===1?t('sesionPlan'):t('sesionesPlan'))
+        + ' · ' + (p.objetivos||[]).length + ' ' + ((p.objetivos||[]).length===1?t('objetivoU'):t('objetivosU'))
       }</div>
       <span class="sub-etiqueta" style="margin-top:10px">${t('sexo')}</span>
       <select class="selector sel-sexo" style="margin-bottom:0">
@@ -1971,6 +2526,7 @@ function generarExcel(){
         (tk.series||[]).forEach(s=>{ total+=s.total; exitos+=s.exitos; });
         const fila = {};
         fila[t('perroCol')] = p.nombre;
+        fila[t('carpeta')] = tk.carpeta || t('sinCarpeta');
         fila[t('nombreCol')] = tk.truco;
         fila[t('descripcionTruco')] = tk.descripcion || '';
         fila[t('estadio')] = tk.estadio;
@@ -2006,22 +2562,30 @@ function generarExcel(){
     });
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(filasSeries), t('series'));
 
-    /* Hoja 4: Cronograma */
-    const DIAS = t('dias');
-    const filasCrono = [];
+    /* Hoja 4: Objetivos */
+    const filasObj = [];
     datos.perros.forEach(p=>{
-      (p.cronograma||[]).forEach(c=>{
-        const tk = (p.trucos||[]).find(x=>x.id===c.trucoId);
+      (p.objetivos||[]).forEach(o=>{
+        const pr = progresoObjetivo(p, o);
+        const tk = o.trucoId ? (p.trucos||[]).find(x=>x.id===o.trucoId) : null;
+        const d = diasHasta(o.fechaLimite);
         const fila = {};
         fila[t('perroCol')] = p.nombre;
-        fila[t('diaCol')] = DIAS[c.dia] || '';
-        fila[t('horaCol')] = c.hora || '';
-        fila[t('conducta')] = tk ? tk.truco : t('conductaEliminada');
-        fila[t('notaCol')] = c.nota || '';
-        filasCrono.push(fila);
+        fila[t('conductaObj')] = o.trucoId ? (tk ? tk.truco : t('conductaEliminada')) : '';
+        fila[t('objetivoCol')] = (o.tipo === 'libre') ? o.texto
+          : (o.tipo === 'estadio'     ? t('deEstadioA', {a:o.desde, b:o.meta})
+          : (o.tipo === 'distraccion' ? t('deNivelA',   {a:o.desde, b:o.meta})
+                                      : o.desde + ' → ' + o.meta + ' ' + unidadTexto(o)));
+        fila[t('progresoCol')] = pr.libre ? (o.hecho ? '100%' : '0%') : pr.valor;
+        fila[t('metaCol')] = pr.libre ? '' : pr.meta;
+        fila['%'] = pr.pct + '%';
+        fila[t('plazoCol')] = o.fechaLimite || '';
+        fila[t('estadoCol')] = pr.cumplido ? t('objetivoCumplido')
+          : (d !== null && d < 0 ? t('noLogrado') : t('enCurso'));
+        filasObj.push(fila);
       });
     });
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(filasCrono), t('tabCrono'));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(filasObj), t('tabObjetivos'));
 
     XLSX.writeFile(wb, 'adiestramiento.xlsx');
     return true;
@@ -2189,7 +2753,7 @@ function cerrarConfig(){
 
 /* ================= RENDER GENERAL ================= */
 function render(){
-  if(pestana === 'crono'){ renderCronograma(); return; }
+  if(pestana === 'obj'){ renderObjetivos(); return; }
   if(pestana === 'vet'){ renderVet(); return; }
   if(pestana === 'perros'){ renderPerros(); return; }
   if(vistaActual){
