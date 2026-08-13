@@ -1,13 +1,18 @@
 name: Construir APK
 
-# Se ejecuta al subir cualquier cambio y tambien a mano
-# desde la pestaña Actions con el boton "Run workflow".
+# Se ejecuta al subir cambios y tambien a mano desde
+# la pestaña Actions con el boton "Run workflow".
 on:
   push:
   workflow_dispatch:
 
 permissions:
   contents: write
+
+# Clave de firma fija. Sin esto cada compilacion usaria una clave distinta
+# y Android rechazaria instalar la actualizacion sobre la app ya instalada.
+env:
+  FIRMA_B64: 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
 
 jobs:
   construir:
@@ -89,9 +94,21 @@ jobs:
                   versionName "1.0"
               }
 
+              // Clave de firma fija: sin esto, cada compilacion firmaria con una clave
+              // distinta y Android rechazaria instalar la actualizacion encima.
+              signingConfigs {
+                  fija {
+                      storeFile file('../firma.jks')
+                      storePassword 'adiestramiento'
+                      keyAlias 'adiestramiento'
+                      keyPassword 'adiestramiento'
+                  }
+              }
+
               buildTypes {
                   release {
                       minifyEnabled false
+                      signingConfig signingConfigs.fija
                   }
               }
 
@@ -259,6 +276,11 @@ jobs:
           echo "Proyecto Android generado:"
           find proyecto -type f | sort
 
+      - name: Escribir la clave de firma
+        run: |
+          echo "$FIRMA_B64" | base64 -d > proyecto/firma.jks
+          echo "Clave escrita: $(wc -c < proyecto/firma.jks) bytes"
+
       - name: Preparar Java 17
         uses: actions/setup-java@v4
         with:
@@ -272,10 +294,10 @@ jobs:
 
       - name: Compilar el APK
         working-directory: proyecto
-        run: gradle assembleDebug --no-daemon --stacktrace
+        run: gradle assembleRelease --no-daemon --stacktrace
 
       - name: Preparar el archivo para descargar
-        run: cp proyecto/app/build/outputs/apk/debug/app-debug.apk adiestramiento.apk
+        run: cp proyecto/app/build/outputs/apk/release/app-release.apk adiestramiento.apk
 
       - name: Guardar copia como artefacto
         uses: actions/upload-artifact@v4
